@@ -1,0 +1,26 @@
+buildscript {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.mparticle:android-kit-plugin:+'
+    }
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+apply plugin: 'com.mparticle.kit'
+
+android {
+    defaultConfig {
+        minSdkVersion 10
+    }
+}
+
+dependencies {
+    compile 'com.urbanairship.android:urbanairship-sdk:7.2.+'
+}

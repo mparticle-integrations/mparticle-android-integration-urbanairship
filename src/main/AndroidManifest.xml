@@ -1,0 +1,35 @@
+<manifest package="com.mparticle.kits.urbanairship"
+          xmlns:android="http://schemas.android.com/apk/res/android"
+          xmlns:tools="http://schemas.android.com/tools">
+
+    <application>
+
+        <meta-data
+            android:name="com.urbanairship.autopilot"
+            android:value="com.mparticle.kits.MParticleAutopilot"/>
+
+        <!-- ADM not supported -->
+        <receiver
+            android:name="com.urbanairship.push.AdmPushReceiver"
+            tools:node="remove" />
+
+        <!-- Handled by mParticle -->
+        <service android:name="com.urbanairship.push.UAInstanceIDListenerService"
+                 tools:node="remove" />
+
+        <!-- Handled by mParticle -->
+        <receiver
+            android:name="com.urbanairship.push.GcmPushReceiver"
+            tools:node="remove" />
+
+        <receiver android:name="com.mparticle.kits.MParticleAirshipReceiver"
+                  android:exported="false">
+
+            <intent-filter>
+                <action android:name="com.urbanairship.push.CHANNEL_UPDATED" />
+                <category android:name="${applicationId}" />
+            </intent-filter>
+        </receiver>
+
+    </application>
+</manifest>
