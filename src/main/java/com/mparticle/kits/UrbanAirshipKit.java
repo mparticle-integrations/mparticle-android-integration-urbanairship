@@ -4,33 +4,38 @@ package com.mparticle.kits;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v4.content.WakefulBroadcastReceiver;
-import android.text.TextUtils;
 
 import com.mparticle.MPEvent;
 import com.mparticle.MParticle;
 import com.mparticle.commerce.CommerceEvent;
 import com.mparticle.commerce.Product;
-import com.mparticle.internal.CommerceEventUtil;
 import com.urbanairship.Autopilot;
 import com.urbanairship.UAirship;
 import com.urbanairship.analytics.CustomEvent;
 import com.urbanairship.analytics.InstallReceiver;
 import com.urbanairship.push.PushMessage;
 import com.urbanairship.push.PushService;
+import com.urbanairship.push.TagEditor;
 
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
- * Urban Airship mParticle kit
+ * mParticle-Urban Airship Kit integration
  */
-public class UrbanAirshipKit extends KitIntegration implements KitIntegration.PushListener, KitIntegration.EventListener, KitIntegration.CommerceListener, KitIntegration.AttributeListener {
+public class UrbanAirshipKit extends KitIntegration implements  KitIntegration.PushListener,
+                                                                KitIntegration.EventListener,
+                                                                KitIntegration.CommerceListener,
+                                                                KitIntegration.AttributeListener {
 
     private ChannelIdListener channelIdListener;
+    private UrbanAirshipConfiguration configuration;
 
     public interface ChannelIdListener {
         void channelIdUpdated();
@@ -48,7 +53,6 @@ public class UrbanAirshipKit extends KitIntegration implements KitIntegration.Pu
 
     public static final String CHANNEL_ID_INTEGRATION_KEY = "com.urbanairship.channel_id";
 
-
     @Override
     public String getName() {
         return "Urban Airship";
@@ -60,7 +64,8 @@ public class UrbanAirshipKit extends KitIntegration implements KitIntegration.Pu
     }
 
     @Override
-    protected List<ReportingMessage> onKitCreate(Map<String, String> map, final Context context) {
+    protected List<ReportingMessage> onKitCreate(Map<String, String> settings, final Context context) {
+        setUrbanConfiguration(new UrbanAirshipConfiguration(settings));
         channelIdListener = new ChannelIdListener(){
 
             @Override
@@ -68,10 +73,19 @@ public class UrbanAirshipKit extends KitIntegration implements KitIntegration.Pu
                 updateChannelIntegration();
             }
         };
-        MParticleAutopilot.updateConfig(context, map);
+        MParticleAutopilot.updateConfig(context, configuration);
         Autopilot.automaticTakeOff(context);
         updateChannelIntegration();
         return null;
+    }
+
+    void setUrbanConfiguration(UrbanAirshipConfiguration configuration) {
+        this.configuration = configuration;
+    }
+
+    @Override
+    public void onSettingsUpdated(Map<String, String> settings) {
+        setUrbanConfiguration(new UrbanAirshipConfiguration(settings));
     }
 
     @Override
@@ -133,12 +147,26 @@ public class UrbanAirshipKit extends KitIntegration implements KitIntegration.Pu
 
     @Override
     public List<ReportingMessage> logEvent(MPEvent event) {
+        Set<String> tagSet = extractTags(event);
+        if (tagSet != null && tagSet.size() > 0) {
+            UAirship.shared().getPushManager()
+                    .editTags()
+                    .addTags(tagSet)
+                    .apply();
+        }
         logUrbanAirshipEvent(event);
         return Collections.singletonList(ReportingMessage.fromEvent(this, event));
     }
 
     @Override
     public List<ReportingMessage> logScreen(String screenName, Map<String, String> attributes) {
+        Set<String> tagSet = extractScreenTags(screenName, attributes);
+        if (tagSet != null && tagSet.size() > 0) {
+            UAirship.shared().getPushManager()
+                    .editTags()
+                    .addTags(tagSet)
+                    .apply();
+        }
         UAirship.shared().getAnalytics().trackScreen(screenName);
 
         ReportingMessage message = new ReportingMessage(this, ReportingMessage.MessageType.SCREEN_VIEW, System.currentTimeMillis(), attributes);
@@ -159,12 +187,20 @@ public class UrbanAirshipKit extends KitIntegration implements KitIntegration.Pu
 
     @Override
     public List<ReportingMessage> logEvent(CommerceEvent commerceEvent) {
+        Set<String> tagSet = extractCommerceTags(commerceEvent);
+        if (tagSet != null && tagSet.size() > 0) {
+            UAirship.shared().getPushManager()
+                    .editTags()
+                    .addTags(tagSet)
+                    .apply();
+        }
+
         List<ReportingMessage> messages = new LinkedList<>();
 
         if (logAirshipRetailEvents(commerceEvent)) {
             messages.add(ReportingMessage.fromEvent(this, commerceEvent));
         } else {
-            for (MPEvent event : CommerceEventUtil.expand(commerceEvent)) {
+            for (MPEvent event : CommerceEventUtils.expand(commerceEvent)) {
                 logUrbanAirshipEvent(event);
                 messages.add(ReportingMessage.fromEvent(this, event));
             }
@@ -196,8 +232,20 @@ public class UrbanAirshipKit extends KitIntegration implements KitIntegration.Pu
     }
 
     @Override
-    public void setUserAttribute(String s, String s1) {
-        // not supported
+    public void setUserAttribute(String key, String value) {
+        if (configuration.getEnableTags()) {
+            if (KitUtils.isEmpty(value)) {
+                UAirship.shared().getPushManager()
+                        .editTags()
+                        .addTag(KitUtils.sanitizeAttributeKey(key))
+                        .apply();
+            } else if (configuration.getIncludeUserAttributes()) {
+                UAirship.shared().getPushManager()
+                        .editTags()
+                        .addTag(KitUtils.sanitizeAttributeKey(key)+"-"+value)
+                        .apply();
+            }
+        }
     }
 
     @Override
@@ -211,13 +259,27 @@ public class UrbanAirshipKit extends KitIntegration implements KitIntegration.Pu
     }
 
     @Override
-    public void setAllUserAttributes(Map<String, String> map, Map<String, List<String>> map1) {
-        // not supported
+    public void setAllUserAttributes(Map<String, String> stringAttributes, Map<String, List<String>> listAttributes) {
+        if (configuration.getEnableTags()) {
+            TagEditor editor = UAirship.shared().getPushManager()
+                    .editTags();
+            for (Map.Entry<String, String> entry : stringAttributes.entrySet()) {
+                if (KitUtils.isEmpty(entry.getValue())) {
+                    editor.addTag(KitUtils.sanitizeAttributeKey(entry.getKey()));
+                } else if (configuration.getIncludeUserAttributes()) {
+                    editor.addTag(KitUtils.sanitizeAttributeKey(entry.getKey())+"-"+entry.getValue());
+                }
+            }
+            editor.apply();
+        }
     }
 
     @Override
-    public void removeUserAttribute(String s) {
-        // not supported
+    public void removeUserAttribute(String attribute) {
+        UAirship.shared().getPushManager()
+                .editTags()
+                .removeTag(attribute)
+                .apply();
     }
 
     @Override
@@ -304,6 +366,92 @@ public class UrbanAirshipKit extends KitIntegration implements KitIntegration.Pu
         UAirship.shared().getAnalytics().addEvent(eventBuilder.create());
     }
 
+    Set<String> extractTags(MPEvent event) {
+        Set<String> tags = new HashSet<String>();
+        if (configuration.getEventClass() != null && configuration.getEventClass().containsKey(event.getEventHash())) {
+            tags.addAll(configuration.getEventClass().get(event.getEventHash()));
+        }
+        if (configuration.getEventAttributeClass() != null && event.getInfo() != null) {
+            for (Map.Entry<String, String> attribute : event.getInfo().entrySet()) {
+                int hash = KitUtils.hashForFiltering(event.getEventType().ordinal() +
+                        event.getEventName() +
+                        attribute.getKey()
+                );
+                List<String> tagValues = configuration.getEventAttributeClass().get(hash);
+                if (tagValues != null) {
+                    tags.addAll(tagValues);
+                }
+                if (!KitUtils.isEmpty(attribute.getValue())) {
+                    for (String tagValue : tagValues) {
+                        tags.add(tagValue+"-"+attribute.getValue());
+                    }
+                }
+
+            }
+        }
+        return tags;
+    }
+
+    Set<String> extractCommerceTags(CommerceEvent commerceEvent) {
+        Set<String> tags = new HashSet<String>();
+
+        int commerceEventHash = KitUtils.hashForFiltering(CommerceEventUtils.getEventType(commerceEvent)+"");
+        if (configuration.getEventClassDetails() != null && configuration.getEventClassDetails().containsKey(commerceEventHash)) {
+            tags.addAll(configuration.getEventClassDetails().get(commerceEventHash));
+        }
+
+        if (configuration.getEventAttributeClassDetails() != null) {
+            List<MPEvent> expandedEvents = CommerceEventUtils.expand(commerceEvent);
+            for (MPEvent event : expandedEvents) {
+                if (event.getInfo() != null) {
+                    for (Map.Entry<String, String> attribute : event.getInfo().entrySet()) {
+                        int hash = KitUtils.hashForFiltering(CommerceEventUtils.getEventType(commerceEvent) +
+                                attribute.getKey()
+                        );
+                        List<String> tagValues = configuration.getEventAttributeClassDetails().get(hash);
+                        if (tagValues != null) {
+                            tags.addAll(tagValues);
+                            if (!KitUtils.isEmpty(attribute.getValue())) {
+                                for (String tagValue : tagValues) {
+                                    tags.add(tagValue + "-" + attribute.getValue());
+                                }
+                            }
+                        }
+
+                    }
+                }
+            }
+        }
+        return tags;
+    }
+
+    Set<String> extractScreenTags(String screenName, Map<String, String> attributes) {
+        Set<String> tags = new HashSet<String>();
+        int screenEventHash = KitUtils.hashForFiltering("0"+screenName);
+        if (configuration.getEventClassDetails() != null && configuration.getEventClassDetails().containsKey(screenEventHash)) {
+            tags.addAll(configuration.getEventClassDetails().get(screenEventHash));
+        }
+        if (configuration.getEventAttributeClassDetails() != null && attributes != null) {
+            for (Map.Entry<String, String> attribute : attributes.entrySet()) {
+                int hash = KitUtils.hashForFiltering("0" +
+                        screenName +
+                        attribute.getKey()
+                );
+                List<String> tagValues = configuration.getEventAttributeClassDetails().get(hash);
+                if (tagValues != null) {
+                    tags.addAll(tagValues);
+                }
+                if (!KitUtils.isEmpty(attribute.getValue())) {
+                    for (String tagValue : tagValues) {
+                        tags.add(tagValue+"-"+attribute.getValue());
+                    }
+                }
+
+            }
+        }
+        return tags;
+    }
+
     /**
      * Maps MParticle.IdentityType to an Urban Airship device identifier.
      *
@@ -345,7 +493,7 @@ public class UrbanAirshipKit extends KitIntegration implements KitIntegration.Pu
      */
     private void updateChannelIntegration() {
         String channelId = UAirship.shared().getPushManager().getChannelId();
-        if (!TextUtils.isEmpty(channelId)) {
+        if (!KitUtils.isEmpty(channelId)) {
             HashMap<String, String> integrationAttributes = new HashMap<String, String>(1);
             integrationAttributes.put(UrbanAirshipKit.CHANNEL_ID_INTEGRATION_KEY, channelId);
             setIntegrationAttributes(integrationAttributes);

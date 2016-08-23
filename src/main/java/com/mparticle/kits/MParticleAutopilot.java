@@ -12,8 +12,6 @@ import com.urbanairship.Logger;
 import com.urbanairship.UAirship;
 import com.urbanairship.util.UAStringUtil;
 
-import java.util.Map;
-
 /**
  * Autopilot for UrbanAirshipKit integration.
  */
@@ -21,12 +19,12 @@ public class MParticleAutopilot extends Autopilot {
 
     private static final String PREFERENCE_NAME = "com.mparticle.kits.urbanairship";
 
-    // Config from mParticle
-    private static final String APP_KEY = "appKey";
-    private static final String APP_SECRET = "appSecret";
+    //persistence keys
+    private static final String APP_KEY = "applicationKey";
+    private static final String APP_SECRET = "applicationSecret";
+    private static final String GCM_SENDER = "gcmSender";
     private static final String NOTIFICATION_ICON_NAME = "notificationIconName";
     private static final String NOTIFICATION_COLOR = "notificationColor";
-    private static final String GCM_SENDER = "gcmSender";
 
     // Perform first run defaults
     private static final String FIRST_RUN_KEY = "first_run";
@@ -72,28 +70,28 @@ public class MParticleAutopilot extends Autopilot {
      * Caches the MParticle config for Urban Airship.
      *
      * @param context The application context.
-     * @param settings UrbanAirshipKit settings.
+     * @param configuration UrbanAirshipKit configuration.
      */
-    static void updateConfig(Context context, Map<String, String> settings) {
+    static void updateConfig(Context context, UrbanAirshipConfiguration configuration) {
         SharedPreferences.Editor editor = context.getSharedPreferences(PREFERENCE_NAME, Context.MODE_PRIVATE)
                 .edit()
-                .putString(APP_KEY, settings.get(APP_KEY))
-                .putString(APP_SECRET, settings.get(APP_SECRET))
+                .putString(APP_KEY, configuration.getApplicationKey())
+                .putString(APP_SECRET, configuration.getApplicationSecret())
                 .putString(GCM_SENDER, MParticle.getInstance().getConfigManager().getPushSenderId());
 
 
         // Convert accent color hex string to an int
-        String accentColor = settings.get(NOTIFICATION_COLOR);
+        String accentColor = configuration.getNotificationColor();
         if (!UAStringUtil.isEmpty(accentColor)) {
             try {
                 editor.putInt(NOTIFICATION_COLOR, Color.parseColor(accentColor));
             } catch (IllegalArgumentException e) {
-                Logger.error("Unable to parse notification accent color: " + accentColor, e);
+                Logger.warn("Unable to parse notification accent color: " + accentColor, e);
             }
         }
 
         // Convert notification name to a drawable resource ID
-        String notificationIconName = settings.get(NOTIFICATION_ICON_NAME);
+        String notificationIconName = configuration.getNotificationIconName();
         if (!UAStringUtil.isEmpty(notificationIconName)) {
             int id = context.getResources().getIdentifier(notificationIconName, "drawable", context.getPackageName());
             if (id != 0) {
