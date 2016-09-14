@@ -17,12 +17,12 @@ apply plugin: 'com.mparticle.kit'
 
 android {
     defaultConfig {
-        minSdkVersion 10
+        minSdkVersion 16
     }
 }
 
 dependencies {
-    compile 'com.urbanairship.android:urbanairship-sdk:[7.2,7.3)'
+    compile 'com.urbanairship.android:urbanairship-sdk:[8.0,8.1)'
     testCompile 'junit:junit:4.12'
     testCompile  files('libs/java-json.jar')
     testCompile "org.mockito:mockito-core:1.+"
