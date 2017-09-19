@@ -297,7 +297,14 @@ public class UrbanAirshipKit extends KitIntegration implements  KitIntegration.P
         switch (event.getProductAction()) {
             case Product.PURCHASE:
                 for (Product product : event.getProducts()) {
-                    populateRetailEventTemplate(RetailEventTemplate.newPurchasedTemplate(), product)
+                    RetailEventTemplate template = RetailEventTemplate
+                            .newPurchasedTemplate();
+                    if (event.getTransactionAttributes() != null && !KitUtils.isEmpty(event.getTransactionAttributes().getId())) {
+                        template.setTransactionId(event
+                                .getTransactionAttributes()
+                                .getId());
+                    }
+                    populateRetailEventTemplate(template, product)
                             .createEvent()
                             .track();
                 }
