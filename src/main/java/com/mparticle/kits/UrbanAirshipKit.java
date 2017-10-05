@@ -389,13 +389,12 @@ public class UrbanAirshipKit extends KitIntegration implements  KitIntegration.P
                 List<String> tagValues = configuration.getEventAttributeClass().get(hash);
                 if (tagValues != null) {
                     tags.addAll(tagValues);
-                }
-                if (!KitUtils.isEmpty(attribute.getValue())) {
-                    for (String tagValue : tagValues) {
-                        tags.add(tagValue+"-"+attribute.getValue());
+                    if (!KitUtils.isEmpty(attribute.getValue())) {
+                        for (String tagValue : tagValues) {
+                            tags.add(tagValue + "-" + attribute.getValue());
+                        }
                     }
                 }
-
             }
         }
         return tags;
