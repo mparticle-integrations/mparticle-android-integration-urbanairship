@@ -23,11 +23,16 @@ public class UrbanAirshipConfiguration {
     private static final String KEY_NOTIFICATION_COLOR = "notificationColor";
     private static final String KEY_INCLUDE_USER_ATTRIBUTES = "includeUserAttributes";
 
+    private static final String NAMED_USER_TYPE_NONE = "none";
+    private static final String NAMED_USER_TYPE_CUSTOMER_ID = "customerId";
+    private static final String NAMED_USER_TYPE_EMAIL = "email";
+    private static final String NAMED_USER_TYPE_OTHER = "other";
+
     private String applicationKey;
     private String applicationSecret;
     private boolean enableTags;
     private boolean includeUserAttributes;
-    private MParticle.IdentityType userIdField = MParticle.IdentityType.Other;
+    private MParticle.IdentityType userIdField;
     private Map<Integer, ArrayList<String>> eventClass;
     private Map<Integer, ArrayList<String>> eventClassDetails;
     private Map<Integer, ArrayList<String>> eventAttributeClass;
@@ -39,17 +44,8 @@ public class UrbanAirshipConfiguration {
         applicationKey = settings.get(KEY_APP_KEY);
         applicationSecret = settings.get(KEY_APP_SECRET);
         enableTags = KitUtils.parseBooleanSetting(settings, KEY_ENABLE_TAGS, true);
-        String userIdStringField = null;
-        if (settings.containsKey(KEY_USER_ID_FIELD)) {
-            userIdStringField = settings.get(KEY_USER_ID_FIELD);
-            if (userIdStringField != null && userIdStringField.length() > 0) {
-                if (userIdStringField.toLowerCase(Locale.US).equals("customerid")) {
-                    userIdField = MParticle.IdentityType.CustomerId;
-                } else {
-                    userIdField = MParticle.IdentityType.Email;
-                }
-            }
-        }
+        userIdField = parseNamedUserIdentityType(settings.get(KEY_USER_ID_FIELD));
+
         if (settings.containsKey(KEY_EVENT_USER_TAGS)) {
             String eventUserTagsString = settings.get(KEY_EVENT_USER_TAGS);
             try {
@@ -165,4 +161,24 @@ public class UrbanAirshipConfiguration {
         }
     }
 
+    private static MParticle.IdentityType parseNamedUserIdentityType(String config) {
+        if (config == null) {
+            return null;
+        }
+
+        switch (config) {
+            case NAMED_USER_TYPE_OTHER:
+                return MParticle.IdentityType.Other;
+
+            case NAMED_USER_TYPE_EMAIL:
+                return MParticle.IdentityType.Email;
+
+            case NAMED_USER_TYPE_CUSTOMER_ID:
+                return MParticle.IdentityType.CustomerId;
+
+            case NAMED_USER_TYPE_NONE:
+            default:
+                return null;
+        }
+    }
 }

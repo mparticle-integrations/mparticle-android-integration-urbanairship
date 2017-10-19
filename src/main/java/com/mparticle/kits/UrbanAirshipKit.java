@@ -212,6 +212,10 @@ public class UrbanAirshipKit extends KitIntegration implements  KitIntegration.P
                     .addIdentifier(airshipId, identity)
                     .apply();
         }
+
+        if (identityType == configuration.getUserIdField()) {
+            UAirship.shared().getNamedUser().setId(identity);
+        }
     }
 
     @Override
@@ -222,6 +226,10 @@ public class UrbanAirshipKit extends KitIntegration implements  KitIntegration.P
                     .editAssociatedIdentifiers()
                     .removeIdentifier(airshipId)
                     .apply();
+        }
+
+        if (identityType == configuration.getUserIdField()) {
+            UAirship.shared().getNamedUser().setId(null);
         }
     }
 
