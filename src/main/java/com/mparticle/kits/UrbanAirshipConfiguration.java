@@ -12,6 +12,7 @@ import java.util.Locale;
 import java.util.Map;
 
 public class UrbanAirshipConfiguration {
+
     private static final String KEY_APP_KEY = "applicationKey";
     private static final String KEY_APP_SECRET = "applicationSecret";
     private static final String KEY_ENABLE_TAGS = "enableTags";
@@ -21,36 +22,12 @@ public class UrbanAirshipConfiguration {
     private static final String KEY_NOTIFICATION_ICON_NAME = "notificationIconName";
     private static final String KEY_NOTIFICATION_COLOR = "notificationColor";
     private static final String KEY_INCLUDE_USER_ATTRIBUTES = "includeUserAttributes";
+
     private String applicationKey;
     private String applicationSecret;
     private boolean enableTags;
     private boolean includeUserAttributes;
     private MParticle.IdentityType userIdField = MParticle.IdentityType.Other;
-
-    public Map<Integer, ArrayList<String>> getEventClass() {
-        return eventClass;
-    }
-
-    public Map<Integer, ArrayList<String>> getEventClassDetails() {
-        return eventClassDetails;
-    }
-
-    public Map<Integer, ArrayList<String>> getEventAttributeClass() {
-        return eventAttributeClass;
-    }
-
-    public Map<Integer, ArrayList<String>> getEventAttributeClassDetails() {
-        return eventAttributeClassDetails;
-    }
-
-    public String getNotificationIconName() {
-        return notificationIconName;
-    }
-
-    public String getNotificationColor() {
-        return notificationColor;
-    }
-
     private Map<Integer, ArrayList<String>> eventClass;
     private Map<Integer, ArrayList<String>> eventClassDetails;
     private Map<Integer, ArrayList<String>> eventAttributeClass;
@@ -101,6 +78,50 @@ public class UrbanAirshipConfiguration {
         includeUserAttributes = KitUtils.parseBooleanSetting(settings, KEY_INCLUDE_USER_ATTRIBUTES, false);
     }
 
+    public Map<Integer, ArrayList<String>> getEventClass() {
+        return eventClass;
+    }
+
+    public Map<Integer, ArrayList<String>> getEventClassDetails() {
+        return eventClassDetails;
+    }
+
+    public Map<Integer, ArrayList<String>> getEventAttributeClass() {
+        return eventAttributeClass;
+    }
+
+    public Map<Integer, ArrayList<String>> getEventAttributeClassDetails() {
+        return eventAttributeClassDetails;
+    }
+
+    public String getNotificationIconName() {
+        return notificationIconName;
+    }
+
+    public String getNotificationColor() {
+        return notificationColor;
+    }
+
+    public String getApplicationKey() {
+        return applicationKey;
+    }
+
+    public String getApplicationSecret() {
+        return applicationSecret;
+    }
+
+    public boolean getEnableTags() {
+        return enableTags;
+    }
+
+    public MParticle.IdentityType getUserIdField() {
+        return userIdField;
+    }
+
+    public boolean getIncludeUserAttributes() {
+        return includeUserAttributes;
+    }
+
     private void parseTagsJson(JSONArray tagsJson) {
         for (int i = 0; i < tagsJson.length(); i++) {
             try {
@@ -144,26 +165,4 @@ public class UrbanAirshipConfiguration {
         }
     }
 
-    public String getApplicationKey() {
-        return applicationKey;
-    }
-
-    public String getApplicationSecret() {
-        return applicationSecret;
-    }
-
-    public boolean getEnableTags() {
-        return enableTags;
-    }
-
-    /**
-     * Not used at this time.
-     */
-    public MParticle.IdentityType getUserIdField() {
-        return userIdField;
-    }
-
-    public boolean getIncludeUserAttributes() {
-        return includeUserAttributes;
-    }
 }
