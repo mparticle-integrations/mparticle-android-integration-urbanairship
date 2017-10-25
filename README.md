@@ -8,7 +8,7 @@ This repository contains the [Urban Airship](https://www.urbanairship.com) integ
 
     ```groovy
     dependencies {
-        compile 'com.mparticle:android-urbanairship-kit:4+'
+        compile 'com.mparticle:android-urbanairship-kit:5+'
     }
     ```
 2. Follow the mParticle Android SDK [quick-start](https://github.com/mParticle/mparticle-android-sdk), then rebuild and launch your app, and verify that you see `"Urban Airship detected"` in the output of `adb logcat`.
