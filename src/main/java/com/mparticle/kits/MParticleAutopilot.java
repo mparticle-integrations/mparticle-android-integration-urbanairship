@@ -63,7 +63,8 @@ public class MParticleAutopilot extends Autopilot {
 
     @Override
     public boolean allowEarlyTakeOff(@NonNull Context context) {
-        return false;
+        AirshipConfigOptions config = createAirshipConfigOptions(context);
+        return config != null && !UAStringUtil.isEmpty(config.getAppKey()) && !UAStringUtil.isEmpty(config.getAppSecret());
     }
 
     /**
