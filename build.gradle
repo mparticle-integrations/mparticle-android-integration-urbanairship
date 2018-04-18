@@ -25,7 +25,7 @@ android {
 }
 
 dependencies {
-    compile 'com.urbanairship.android:urbanairship-sdk:8.9.3'
+    compile 'com.urbanairship.android:urbanairship-sdk:8.9.7'
     testCompile 'junit:junit:4.12'
     testCompile  files('libs/java-json.jar')
     testCompile "org.mockito:mockito-core:1.+"
