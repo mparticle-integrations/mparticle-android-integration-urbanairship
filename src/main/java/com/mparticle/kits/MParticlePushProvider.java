@@ -9,7 +9,7 @@ import com.urbanairship.push.PushMessage;
 import com.urbanairship.push.PushProvider;
 
 /**
- * Urban Airship PushProvider.
+ * Used to register for push in the Urban Airship SDK.
  */
 class MParticlePushProvider implements PushProvider {
 
