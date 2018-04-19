@@ -116,20 +116,9 @@ public class UrbanAirshipKit extends KitIntegration implements  KitIntegration.P
             return;
         }
 
-        final CountDownLatch countDownLatch = new CountDownLatch(1);
-        PushProviderBridge.processPush(MParticlePushProvider.class, new PushMessage(intent.getExtras()))
-                .execute(context, new Runnable() {
-                    @Override
-                    public void run() {
-                        countDownLatch.countDown();
-                    }
-                });
-
-        try {
-            countDownLatch.await();
-        } catch (InterruptedException e) {
-            Logger.error("Failed to process push.", e);
-        }
+        PushMessage pushMessage = new PushMessage(intent.getExtras());
+        PushProviderBridge.processPush(MParticlePushProvider.class, pushMessage)
+                .executeSync(context);
     }
 
     @Override
