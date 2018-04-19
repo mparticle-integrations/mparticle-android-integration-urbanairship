@@ -22,7 +22,6 @@ public class MParticleAutopilot extends Autopilot {
     //persistence keys
     private static final String APP_KEY = "applicationKey";
     private static final String APP_SECRET = "applicationSecret";
-    private static final String GCM_SENDER = "gcmSender";
     private static final String NOTIFICATION_ICON_NAME = "notificationIconName";
     private static final String NOTIFICATION_COLOR = "notificationColor";
 
@@ -34,10 +33,9 @@ public class MParticleAutopilot extends Autopilot {
         SharedPreferences preferences = context.getSharedPreferences(PREFERENCE_NAME, Context.MODE_PRIVATE);
 
         AirshipConfigOptions.Builder optionsBuilder = new AirshipConfigOptions.Builder()
-                .setGcmSender(preferences.getString(GCM_SENDER, null))
                 .setNotificationIcon(preferences.getInt(NOTIFICATION_ICON_NAME, 0))
-                .setNotificationAccentColor(preferences.getInt(NOTIFICATION_COLOR, 0));
-
+                .setNotificationAccentColor(preferences.getInt(NOTIFICATION_COLOR, 0))
+                .setCustomPushProvider(MParticlePushProvider.getInstance());
 
         if (MParticle.getInstance().getEnvironment() == MParticle.Environment.Development) {
             optionsBuilder.setDevelopmentAppKey(preferences.getString(APP_KEY, null))
@@ -59,27 +57,28 @@ public class MParticleAutopilot extends Autopilot {
             preferences.edit().putBoolean(FIRST_RUN_KEY, false).apply();
             airship.getPushManager().setUserNotificationsEnabled(true);
         }
+
+        // Restore the last registration token
+        String token = airship.getPushManager().getRegistrationToken();
+        MParticlePushProvider.getInstance().setRegistrationToken(token);
     }
 
     @Override
     public boolean allowEarlyTakeOff(@NonNull Context context) {
-        AirshipConfigOptions config = createAirshipConfigOptions(context);
-        return config != null && !UAStringUtil.isEmpty(config.getAppKey()) && !UAStringUtil.isEmpty(config.getAppSecret());
+        return false;
     }
 
     /**
      * Caches the MParticle config for Urban Airship.
      *
-     * @param context The application context.
+     * @param context       The application context.
      * @param configuration UrbanAirshipKit configuration.
      */
     static void updateConfig(Context context, UrbanAirshipConfiguration configuration) {
         SharedPreferences.Editor editor = context.getSharedPreferences(PREFERENCE_NAME, Context.MODE_PRIVATE)
                 .edit()
                 .putString(APP_KEY, configuration.getApplicationKey())
-                .putString(APP_SECRET, configuration.getApplicationSecret())
-                .putString(GCM_SENDER, MParticle.getInstance().getConfigManager().getPushSenderId());
-
+                .putString(APP_SECRET, configuration.getApplicationSecret());
 
         // Convert accent color hex string to an int
         String accentColor = configuration.getNotificationColor();

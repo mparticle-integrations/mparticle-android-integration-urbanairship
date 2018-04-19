@@ -9,13 +9,14 @@ import com.mparticle.MParticle;
 import com.mparticle.commerce.CommerceEvent;
 import com.mparticle.commerce.Product;
 import com.urbanairship.Autopilot;
+import com.urbanairship.Logger;
 import com.urbanairship.UAirship;
 import com.urbanairship.analytics.CustomEvent;
 import com.urbanairship.analytics.InstallReceiver;
 import com.urbanairship.analytics.RetailEventTemplate;
-import com.urbanairship.push.GcmConstants;
-import com.urbanairship.push.GcmPushReceiver;
+
 import com.urbanairship.push.PushMessage;
+import com.urbanairship.push.PushProviderBridge;
 import com.urbanairship.push.TagEditor;
 
 import java.math.BigDecimal;
@@ -26,6 +27,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * mParticle-Urban Airship Kit integration
@@ -110,17 +112,30 @@ public class UrbanAirshipKit extends KitIntegration implements  KitIntegration.P
 
     @Override
     public void onPushMessageReceived(Context context, Intent intent) {
-        new GcmPushReceiver().onReceive(context, intent);
+        if (intent == null || intent.getExtras() == null) {
+            return;
+        }
+
+        final CountDownLatch countDownLatch = new CountDownLatch(1);
+        PushProviderBridge.processPush(MParticlePushProvider.class, new PushMessage(intent.getExtras()))
+                .execute(context, new Runnable() {
+                    @Override
+                    public void run() {
+                        countDownLatch.countDown();
+                    }
+                });
+
+        try {
+            countDownLatch.await();
+        } catch (InterruptedException e) {
+            Logger.error("Failed to process push.", e);
+        }
     }
 
     @Override
     public boolean onPushRegistration(String instanceId, String senderId) {
-        // Assume mismatch sender Ids means we need to refresh the token
-        if (!senderId.equals(UAirship.shared().getPushManager().getRegistrationToken())) {
-            Intent intent = new Intent(GcmConstants.ACTION_GCM_REGISTRATION);
-            new GcmPushReceiver().onReceive(getContext(), intent);
-        }
-
+        MParticlePushProvider.getInstance().setRegistrationToken(instanceId);
+        PushProviderBridge.requestRegistrationUpdate(getContext());
         return true;
     }
 
