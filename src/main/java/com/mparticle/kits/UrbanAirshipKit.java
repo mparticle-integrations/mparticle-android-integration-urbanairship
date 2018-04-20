@@ -106,8 +106,10 @@ public class UrbanAirshipKit extends KitIntegration implements  KitIntegration.P
 
     @Override
     public boolean willHandlePushMessage(Intent intent) {
-        return intent.getStringExtra(PushMessage.EXTRA_SEND_ID) != null ||
-                intent.getStringExtra(PushMessage.EXTRA_ALERT) != null;
+        if (intent == null || intent.getExtras() == null) {
+            return false;
+        }
+        return new PushMessage(intent.getExtras()).containsAirshipKeys();
     }
 
     @Override
