@@ -12,6 +12,9 @@ buildscript {
 repositories {
     mavenLocal()
     mavenCentral()
+    maven {
+        url "https://maven.google.com"
+    }
 }
 
 apply plugin: 'com.mparticle.kit'
@@ -23,8 +26,8 @@ android {
 }
 
 dependencies {
-    api 'com.urbanairship.android:urbanairship-sdk:8.9.7'
+    api 'com.urbanairship.android:urbanairship-core:9.1.0'
     testImplementation 'junit:junit:4.12'
-    testImplementation  files('libs/java-json.jar')
+    testImplementation files('libs/java-json.jar')
     testImplementation "org.mockito:mockito-core:1.+"
 }

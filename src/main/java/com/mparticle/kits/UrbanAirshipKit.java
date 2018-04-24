@@ -9,13 +9,14 @@ import com.mparticle.MParticle;
 import com.mparticle.commerce.CommerceEvent;
 import com.mparticle.commerce.Product;
 import com.urbanairship.Autopilot;
+import com.urbanairship.Logger;
 import com.urbanairship.UAirship;
 import com.urbanairship.analytics.CustomEvent;
 import com.urbanairship.analytics.InstallReceiver;
 import com.urbanairship.analytics.RetailEventTemplate;
-import com.urbanairship.push.GcmConstants;
-import com.urbanairship.push.GcmPushReceiver;
+
 import com.urbanairship.push.PushMessage;
+import com.urbanairship.push.PushProviderBridge;
 import com.urbanairship.push.TagEditor;
 
 import java.math.BigDecimal;
@@ -26,6 +27,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * mParticle-Urban Airship Kit integration
@@ -104,23 +106,27 @@ public class UrbanAirshipKit extends KitIntegration implements  KitIntegration.P
 
     @Override
     public boolean willHandlePushMessage(Intent intent) {
-        return intent.getStringExtra(PushMessage.EXTRA_SEND_ID) != null ||
-                intent.getStringExtra(PushMessage.EXTRA_ALERT) != null;
+        if (intent == null || intent.getExtras() == null) {
+            return false;
+        }
+        return new PushMessage(intent.getExtras()).containsAirshipKeys();
     }
 
     @Override
     public void onPushMessageReceived(Context context, Intent intent) {
-        new GcmPushReceiver().onReceive(context, intent);
+        if (intent == null || intent.getExtras() == null) {
+            return;
+        }
+
+        PushMessage pushMessage = new PushMessage(intent.getExtras());
+        PushProviderBridge.processPush(MParticlePushProvider.class, pushMessage)
+                .executeSync(context);
     }
 
     @Override
     public boolean onPushRegistration(String instanceId, String senderId) {
-        // Assume mismatch sender Ids means we need to refresh the token
-        if (!senderId.equals(UAirship.shared().getPushManager().getRegistrationToken())) {
-            Intent intent = new Intent(GcmConstants.ACTION_GCM_REGISTRATION);
-            new GcmPushReceiver().onReceive(getContext(), intent);
-        }
-
+        MParticlePushProvider.getInstance().setRegistrationToken(instanceId);
+        PushProviderBridge.requestRegistrationUpdate(getContext());
         return true;
     }
 
