@@ -7,6 +7,8 @@ import com.mparticle.MParticle;
 import com.mparticle.commerce.CommerceEvent;
 import com.mparticle.commerce.Product;
 import com.mparticle.commerce.TransactionAttributes;
+import com.mparticle.kits.core.KitConfiguration;
+import com.mparticle.kits.core.KitIntegration;
 
 import org.json.JSONObject;
 import org.junit.Test;

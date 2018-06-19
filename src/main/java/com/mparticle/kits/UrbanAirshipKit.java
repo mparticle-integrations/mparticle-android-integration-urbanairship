@@ -8,6 +8,8 @@ import com.mparticle.MPEvent;
 import com.mparticle.MParticle;
 import com.mparticle.commerce.CommerceEvent;
 import com.mparticle.commerce.Product;
+import com.mparticle.kits_core.KitIntegration;
+import com.mparticle.kits_core.ReportingMessage;
 import com.urbanairship.Autopilot;
 import com.urbanairship.Logger;
 import com.urbanairship.UAirship;
@@ -20,6 +22,7 @@ import com.urbanairship.push.PushProviderBridge;
 import com.urbanairship.push.TagEditor;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -32,7 +35,7 @@ import java.util.concurrent.CountDownLatch;
 /**
  * mParticle-Urban Airship Kit integration
  */
-public class UrbanAirshipKit extends KitIntegration implements  KitIntegration.PushListener,
+public class UrbanAirshipKit extends AbstractKitIntegration implements  KitIntegration.PushListener,
                                                                 KitIntegration.EventListener,
                                                                 KitIntegration.CommerceListener,
                                                                 KitIntegration.AttributeListener {
@@ -67,7 +70,7 @@ public class UrbanAirshipKit extends KitIntegration implements  KitIntegration.P
     }
 
     @Override
-    protected List<ReportingMessage> onKitCreate(Map<String, String> settings, final Context context) {
+    public List<ReportingMessage> onKitCreate(Map<String, String> settings, final Context context) {
         setUrbanConfiguration(new UrbanAirshipConfiguration(settings));
         channelIdListener = new ChannelIdListener(){
 
@@ -95,7 +98,7 @@ public class UrbanAirshipKit extends KitIntegration implements  KitIntegration.P
     public List<ReportingMessage> setOptOut(boolean optedOut) {
         UAirship.shared().getAnalytics().setEnabled(optedOut);
 
-        ReportingMessage message = new ReportingMessage(this, ReportingMessage.MessageType.OPT_OUT, System.currentTimeMillis(), null);
+        ReportingMessage message = new ReportingMessageImpl(this, ReportingMessageImpl.MessageType.OPT_OUT, System.currentTimeMillis(), null);
         return Collections.singletonList(message);
     }
 
@@ -146,7 +149,7 @@ public class UrbanAirshipKit extends KitIntegration implements  KitIntegration.P
     }
 
     @Override
-    public List<ReportingMessage> logEvent(MPEvent event) {
+    public List<ReportingMessage> logEvent(final MPEvent event) {
         Set<String> tagSet = extractTags(event);
         if (tagSet != null && tagSet.size() > 0) {
             UAirship.shared().getPushManager()
@@ -155,7 +158,7 @@ public class UrbanAirshipKit extends KitIntegration implements  KitIntegration.P
                     .apply();
         }
         logUrbanAirshipEvent(event);
-        return Collections.singletonList(ReportingMessage.fromEvent(this, event));
+        return new ArrayList<ReportingMessage>() {{add(ReportingMessageImpl.fromEvent(UrbanAirshipKit.this, event));}};
     }
 
     @Override
@@ -169,7 +172,7 @@ public class UrbanAirshipKit extends KitIntegration implements  KitIntegration.P
         }
         UAirship.shared().getAnalytics().trackScreen(screenName);
 
-        ReportingMessage message = new ReportingMessage(this, ReportingMessage.MessageType.SCREEN_VIEW, System.currentTimeMillis(), attributes);
+        ReportingMessage message = new ReportingMessageImpl(this, ReportingMessageImpl.MessageType.SCREEN_VIEW, System.currentTimeMillis(), attributes);
         return Collections.singletonList(message);
     }
 
@@ -181,7 +184,7 @@ public class UrbanAirshipKit extends KitIntegration implements  KitIntegration.P
 
         UAirship.shared().getAnalytics().addEvent(customEvent);
 
-        ReportingMessage message = new ReportingMessage(this, ReportingMessage.MessageType.EVENT, System.currentTimeMillis(), contextInfo);
+        ReportingMessage message = new ReportingMessageImpl(this, ReportingMessageImpl.MessageType.EVENT, System.currentTimeMillis(), contextInfo);
         return Collections.singletonList(message);
     }
 
@@ -198,11 +201,11 @@ public class UrbanAirshipKit extends KitIntegration implements  KitIntegration.P
         List<ReportingMessage> messages = new LinkedList<>();
 
         if (logAirshipRetailEvents(commerceEvent)) {
-            messages.add(ReportingMessage.fromEvent(this, commerceEvent));
+            messages.add(ReportingMessageImpl.fromEvent(this, commerceEvent));
         } else {
             for (MPEvent event : CommerceEventUtils.expand(commerceEvent)) {
                 logUrbanAirshipEvent(event);
-                messages.add(ReportingMessage.fromEvent(this, event));
+                messages.add(ReportingMessageImpl.fromEvent(this, event));
             }
         }
 

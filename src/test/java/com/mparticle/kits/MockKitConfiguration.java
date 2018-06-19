@@ -5,6 +5,7 @@ import android.util.SparseBooleanArray;
 import com.mparticle.MParticle;
 import com.mparticle.internal.ConfigManager;
 import com.mparticle.internal.Logger;
+import com.mparticle.kits_core.KitConfiguration;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -16,10 +17,10 @@ import java.util.Map;
 /**
  * This class is necessary b/c SparseBooleanArray is not available while unit testing.
  */
-public class MockKitConfiguration extends KitConfiguration {
+public class MockKitConfiguration extends KitConfigurationImpl {
 
     @Override
-    public KitConfiguration parseConfiguration(JSONObject json) throws JSONException {
+    public KitConfigurationImpl parseConfiguration(JSONObject json) throws JSONException {
         mTypeFilters = new MockSparseBooleanArray();
         mNameFilters = new MockSparseBooleanArray();
         mAttributeFilters = new MockSparseBooleanArray();
@@ -32,7 +33,7 @@ public class MockKitConfiguration extends KitConfiguration {
         return super.parseConfiguration(json);
     }
 
-    public static KitConfiguration createKitConfiguration(JSONObject json) throws JSONException{
+    public static KitConfigurationImpl createKitConfiguration(JSONObject json) throws JSONException{
         return new MockKitConfiguration().parseConfiguration(json);
     }
 
