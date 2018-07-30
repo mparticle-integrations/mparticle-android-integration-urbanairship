@@ -5,7 +5,7 @@ import android.util.SparseBooleanArray;
 import com.mparticle.MParticle;
 import com.mparticle.internal.ConfigManager;
 import com.mparticle.internal.Logger;
-import com.mparticle.kits_core.KitConfiguration;
+import com.mparticle.kits.core.KitConfiguration;
 
 import org.json.JSONException;
 import org.json.JSONObject;
