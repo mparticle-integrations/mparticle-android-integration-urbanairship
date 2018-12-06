@@ -9,12 +9,10 @@ import com.mparticle.MParticle;
 import com.mparticle.commerce.CommerceEvent;
 import com.mparticle.commerce.Product;
 import com.urbanairship.Autopilot;
-import com.urbanairship.Logger;
 import com.urbanairship.UAirship;
 import com.urbanairship.analytics.CustomEvent;
 import com.urbanairship.analytics.InstallReceiver;
 import com.urbanairship.analytics.RetailEventTemplate;
-
 import com.urbanairship.push.PushMessage;
 import com.urbanairship.push.PushProviderBridge;
 import com.urbanairship.push.TagEditor;
@@ -27,7 +25,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.CountDownLatch;
 
 /**
  * mParticle-Urban Airship Kit integration

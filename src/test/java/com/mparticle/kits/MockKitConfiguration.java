@@ -2,8 +2,6 @@ package com.mparticle.kits;
 
 import android.util.SparseBooleanArray;
 
-import com.mparticle.MParticle;
-import com.mparticle.internal.ConfigManager;
 import com.mparticle.internal.Logger;
 
 import org.json.JSONException;
