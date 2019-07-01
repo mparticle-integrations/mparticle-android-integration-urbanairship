@@ -3,7 +3,6 @@ package com.mparticle.kits;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
-import com.urbanairship.AirshipConfigOptions;
 import com.urbanairship.UAirship;
 import com.urbanairship.push.PushMessage;
 import com.urbanairship.push.PushProvider;
@@ -38,7 +37,7 @@ class MParticlePushProvider implements PushProvider {
     }
 
     @Override
-    public boolean isSupported(@NonNull Context context, @NonNull AirshipConfigOptions airshipConfigOptions) {
+    public boolean isSupported(@NonNull Context context) {
         return true;
     }
 
