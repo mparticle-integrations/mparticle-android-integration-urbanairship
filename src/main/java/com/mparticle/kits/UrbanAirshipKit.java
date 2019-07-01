@@ -174,7 +174,7 @@ public class UrbanAirshipKit extends KitIntegration implements  KitIntegration.P
     public List<ReportingMessage> logLtvIncrease(BigDecimal valueIncreased, BigDecimal totalValue, String eventName, Map<String, String> contextInfo) {
         CustomEvent customEvent = new CustomEvent.Builder(eventName)
                 .setEventValue(valueIncreased)
-                .create();
+                .build();
 
         UAirship.shared().getAnalytics().addEvent(customEvent);
 
@@ -383,7 +383,7 @@ public class UrbanAirshipKit extends KitIntegration implements  KitIntegration.P
             }
         }
 
-        UAirship.shared().getAnalytics().addEvent(eventBuilder.create());
+        UAirship.shared().getAnalytics().addEvent(eventBuilder.build());
     }
 
     Set<String> extractTags(MPEvent event) {

@@ -38,7 +38,7 @@ class MParticlePushProvider implements PushProvider {
     }
 
     @Override
-    public boolean isSupported(@NonNull Context context, @NonNull AirshipConfigOptions airshipConfigOptions) {
+    public boolean isSupported(@NonNull Context context) {
         return true;
     }
 

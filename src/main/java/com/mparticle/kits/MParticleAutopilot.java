@@ -10,6 +10,7 @@ import com.urbanairship.AirshipConfigOptions;
 import com.urbanairship.Autopilot;
 import com.urbanairship.Logger;
 import com.urbanairship.UAirship;
+import com.urbanairship.push.RegistrationListener;
 import com.urbanairship.util.UAStringUtil;
 
 /**
@@ -61,6 +62,28 @@ public class MParticleAutopilot extends Autopilot {
         // Restore the last registration token
         String token = airship.getPushManager().getRegistrationToken();
         MParticlePushProvider.getInstance().setRegistrationToken(token);
+
+        airship.getPushManager().addRegistrationListener(new RegistrationListener() {
+            @Override
+            public void onChannelCreated(@android.support.annotation.NonNull String s) {
+                callChannelIdListener();
+            }
+
+            @Override
+            public void onChannelUpdated(@android.support.annotation.NonNull String s) {
+                callChannelIdListener();
+            }
+
+            @Override
+            public void onPushTokenUpdated(@android.support.annotation.NonNull String s) {}
+
+            private void callChannelIdListener() {
+                Object channelIdListener = MParticle.getInstance().getKitInstance(MParticle.ServiceProviders.URBAN_AIRSHIP);
+                if (channelIdListener != null) {
+                    ((UrbanAirshipKit.ChannelIdListener)channelIdListener).channelIdUpdated();
+                }
+            }
+        });
     }
 
     @Override
