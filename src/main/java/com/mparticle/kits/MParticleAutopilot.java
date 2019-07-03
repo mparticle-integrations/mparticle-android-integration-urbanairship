@@ -3,7 +3,7 @@ package com.mparticle.kits;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
-import androidx.annotation.NonNull;
+import android.support.annotation.NonNull;
 
 import com.mparticle.MParticle;
 import com.urbanairship.AirshipConfigOptions;
@@ -65,17 +65,17 @@ public class MParticleAutopilot extends Autopilot {
 
         airship.getPushManager().addRegistrationListener(new RegistrationListener() {
             @Override
-            public void onChannelCreated(@android.support.annotation.NonNull String s) {
+            public void onChannelCreated(@NonNull String s) {
                 callChannelIdListener();
             }
 
             @Override
-            public void onChannelUpdated(@android.support.annotation.NonNull String s) {
+            public void onChannelUpdated(@NonNull String s) {
                 callChannelIdListener();
             }
 
             @Override
-            public void onPushTokenUpdated(@android.support.annotation.NonNull String s) {}
+            public void onPushTokenUpdated(@NonNull String s) {}
 
             private void callChannelIdListener() {
                 Object channelIdListener = MParticle.getInstance().getKitInstance(MParticle.ServiceProviders.URBAN_AIRSHIP);
