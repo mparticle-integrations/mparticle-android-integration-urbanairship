@@ -30,7 +30,7 @@ android {
 }
 
 dependencies {
-    api 'com.urbanairship.android:urbanairship-core:11.0.5'
+    api 'com.urbanairship.android:urbanairship-core:13.2.0'
     compileOnly 'com.android.support:appcompat-v7:+'
     testImplementation 'junit:junit:4.13'
     testImplementation files('libs/java-json.jar')
