@@ -6,11 +6,11 @@ import android.graphics.Color;
 import android.support.annotation.NonNull;
 
 import com.mparticle.MParticle;
+import com.mparticle.internal.Logger;
 import com.urbanairship.AirshipConfigOptions;
 import com.urbanairship.Autopilot;
-import com.urbanairship.Logger;
 import com.urbanairship.UAirship;
-import com.urbanairship.push.RegistrationListener;
+import com.urbanairship.channel.AirshipChannelListener;
 import com.urbanairship.util.UAStringUtil;
 
 /**
@@ -63,19 +63,16 @@ public class MParticleAutopilot extends Autopilot {
         String token = airship.getPushManager().getRegistrationToken();
         MParticlePushProvider.getInstance().setRegistrationToken(token);
 
-        airship.getPushManager().addRegistrationListener(new RegistrationListener() {
+        airship.getChannel().addChannelListener(new AirshipChannelListener() {
             @Override
-            public void onChannelCreated(@NonNull String s) {
+            public void onChannelCreated(@androidx.annotation.NonNull String s) {
                 callChannelIdListener();
             }
 
             @Override
-            public void onChannelUpdated(@NonNull String s) {
+            public void onChannelUpdated(@androidx.annotation.NonNull String s) {
                 callChannelIdListener();
             }
-
-            @Override
-            public void onPushTokenUpdated(@NonNull String s) {}
 
             private void callChannelIdListener() {
                 Object channelIdListener = MParticle.getInstance().getKitInstance(MParticle.ServiceProviders.URBAN_AIRSHIP);
@@ -109,7 +106,7 @@ public class MParticleAutopilot extends Autopilot {
             try {
                 editor.putInt(NOTIFICATION_COLOR, Color.parseColor(accentColor));
             } catch (IllegalArgumentException e) {
-                Logger.warn("Unable to parse notification accent color: " + accentColor, e);
+                Logger.warning(e, "Unable to parse notification accent color: " + accentColor);
             }
         }
 

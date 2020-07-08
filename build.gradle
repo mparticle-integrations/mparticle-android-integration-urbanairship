@@ -30,9 +30,9 @@ android {
 }
 
 dependencies {
-    api 'com.urbanairship.android:urbanairship-core:11.0.5'
+    api 'com.urbanairship.android:urbanairship-core:13.2.1'
     compileOnly 'com.android.support:appcompat-v7:+'
     testImplementation 'junit:junit:4.13'
     testImplementation files('libs/java-json.jar')
-    testImplementation "org.mockito:mockito-core:1.+"
+    testImplementation "org.mockito:mockito-core:3.3.3"
 }

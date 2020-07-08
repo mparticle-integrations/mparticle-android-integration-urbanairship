@@ -15,7 +15,7 @@ import com.urbanairship.analytics.InstallReceiver;
 import com.urbanairship.analytics.RetailEventTemplate;
 import com.urbanairship.push.PushMessage;
 import com.urbanairship.push.PushProviderBridge;
-import com.urbanairship.push.TagEditor;
+import com.urbanairship.channel.TagEditor;
 
 import java.math.BigDecimal;
 import java.util.Collections;
