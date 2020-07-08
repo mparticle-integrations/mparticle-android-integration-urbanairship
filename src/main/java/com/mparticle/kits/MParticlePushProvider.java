@@ -26,6 +26,12 @@ class MParticlePushProvider implements PushProvider {
         return UAirship.ANDROID_PLATFORM;
     }
 
+    @androidx.annotation.NonNull
+    @Override
+    public String getDeliveryType() {
+        return PushProvider.FCM_DELIVERY_TYPE;
+    }
+
     @Override
     public String getRegistrationToken(@NonNull Context context) {
         return token;
@@ -39,11 +45,6 @@ class MParticlePushProvider implements PushProvider {
     @Override
     public boolean isSupported(@NonNull Context context) {
         return true;
-    }
-
-    @Override
-    public boolean isUrbanAirshipMessage(@NonNull Context context, @NonNull UAirship uAirship, @NonNull PushMessage pushMessage) {
-        return pushMessage.containsAirshipKeys();
     }
 
     void setRegistrationToken(String token) {
