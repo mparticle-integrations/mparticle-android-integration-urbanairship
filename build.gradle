@@ -34,5 +34,5 @@ dependencies {
     compileOnly 'com.android.support:appcompat-v7:+'
     testImplementation 'junit:junit:4.13'
     testImplementation files('libs/java-json.jar')
-    testImplementation "org.mockito:mockito-core:3.3.3"
+    testImplementation "org.mockito:mockito-core:3.5.5"
 }
