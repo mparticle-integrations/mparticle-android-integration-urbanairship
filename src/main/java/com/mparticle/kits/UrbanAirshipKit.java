@@ -16,6 +16,9 @@ import com.urbanairship.analytics.RetailEventTemplate;
 import com.urbanairship.push.PushMessage;
 import com.urbanairship.push.PushProviderBridge;
 import com.urbanairship.channel.TagEditor;
+import com.urbanairship.channel.AirshipChannel;
+import com.urbanairship.json.JsonValue;
+import com.urbanairship.json.JsonMap;
 
 import java.math.BigDecimal;
 import java.util.Collections;
@@ -90,7 +93,7 @@ public class UrbanAirshipKit extends KitIntegration implements  KitIntegration.P
 
     @Override
     public List<ReportingMessage> setOptOut(boolean optedOut) {
-        UAirship.shared().getAnalytics().setEnabled(optedOut);
+        UAirship.shared().setDataCollectionEnabled(!optedOut);
 
         ReportingMessage message = new ReportingMessage(this, ReportingMessage.MessageType.OPT_OUT, System.currentTimeMillis(), null);
         return Collections.singletonList(message);
@@ -146,7 +149,7 @@ public class UrbanAirshipKit extends KitIntegration implements  KitIntegration.P
     public List<ReportingMessage> logEvent(MPEvent event) {
         Set<String> tagSet = extractTags(event);
         if (tagSet != null && tagSet.size() > 0) {
-            UAirship.shared().getPushManager()
+            UAirship.shared().getChannel()
                     .editTags()
                     .addTags(tagSet)
                     .apply();
@@ -159,7 +162,7 @@ public class UrbanAirshipKit extends KitIntegration implements  KitIntegration.P
     public List<ReportingMessage> logScreen(String screenName, Map<String, String> attributes) {
         Set<String> tagSet = extractScreenTags(screenName, attributes);
         if (tagSet != null && tagSet.size() > 0) {
-            UAirship.shared().getPushManager()
+            UAirship.shared().getChannel()
                     .editTags()
                     .addTags(tagSet)
                     .apply();
@@ -186,7 +189,7 @@ public class UrbanAirshipKit extends KitIntegration implements  KitIntegration.P
     public List<ReportingMessage> logEvent(CommerceEvent commerceEvent) {
         Set<String> tagSet = extractCommerceTags(commerceEvent);
         if (tagSet != null && tagSet.size() > 0) {
-            UAirship.shared().getPushManager()
+            UAirship.shared().getChannel()
                     .editTags()
                     .addTags(tagSet)
                     .apply();
@@ -240,12 +243,12 @@ public class UrbanAirshipKit extends KitIntegration implements  KitIntegration.P
     public void setUserAttribute(String key, String value) {
         if (configuration.getEnableTags()) {
             if (KitUtils.isEmpty(value)) {
-                UAirship.shared().getPushManager()
+                UAirship.shared().getChannel()
                         .editTags()
                         .addTag(KitUtils.sanitizeAttributeKey(key))
                         .apply();
             } else if (configuration.getIncludeUserAttributes()) {
-                UAirship.shared().getPushManager()
+                UAirship.shared().getChannel()
                         .editTags()
                         .addTag(KitUtils.sanitizeAttributeKey(key)+"-"+value)
                         .apply();
@@ -266,7 +269,7 @@ public class UrbanAirshipKit extends KitIntegration implements  KitIntegration.P
     @Override
     public void setAllUserAttributes(Map<String, String> stringAttributes, Map<String, List<String>> listAttributes) {
         if (configuration.getEnableTags()) {
-            TagEditor editor = UAirship.shared().getPushManager()
+            TagEditor editor = UAirship.shared().getChannel()
                     .editTags();
             for (Map.Entry<String, String> entry : stringAttributes.entrySet()) {
                 if (KitUtils.isEmpty(entry.getValue())) {
@@ -281,7 +284,7 @@ public class UrbanAirshipKit extends KitIntegration implements  KitIntegration.P
 
     @Override
     public void removeUserAttribute(String attribute) {
-        UAirship.shared().getPushManager()
+        UAirship.shared().getChannel()
                 .editTags()
                 .removeTag(attribute)
                 .apply();
@@ -378,9 +381,7 @@ public class UrbanAirshipKit extends KitIntegration implements  KitIntegration.P
     private void logUrbanAirshipEvent(MPEvent event) {
         CustomEvent.Builder eventBuilder = new CustomEvent.Builder(event.getEventName());
         if (event.getInfo() != null) {
-            for (Map.Entry<String, String> entry : event.getInfo().entrySet()) {
-                eventBuilder.addProperty(entry.getKey(), entry.getValue());
-            }
+            eventBuilder.setProperties(JsonValue.wrapOpt(event.getInfo()).optMap());
         }
 
         UAirship.shared().getAnalytics().addEvent(eventBuilder.build());
@@ -511,7 +512,7 @@ public class UrbanAirshipKit extends KitIntegration implements  KitIntegration.P
      * Sets the Urban Airship Channel ID as an mParticle integration attribute.
      */
     private void updateChannelIntegration() {
-        String channelId = UAirship.shared().getPushManager().getChannelId();
+        String channelId = UAirship.shared().getChannel().getId();
         if (!KitUtils.isEmpty(channelId)) {
             HashMap<String, String> integrationAttributes = new HashMap<String, String>(1);
             integrationAttributes.put(UrbanAirshipKit.CHANNEL_ID_INTEGRATION_KEY, channelId);
