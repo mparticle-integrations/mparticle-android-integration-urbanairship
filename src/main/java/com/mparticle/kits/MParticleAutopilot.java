@@ -60,7 +60,7 @@ public class MParticleAutopilot extends Autopilot {
         }
 
         // Restore the last registration token
-        String token = airship.getPushManager().getRegistrationToken();
+        String token = airship.getPushManager().getPushToken();
         MParticlePushProvider.getInstance().setRegistrationToken(token);
 
         airship.getChannel().addChannelListener(new AirshipChannelListener() {
