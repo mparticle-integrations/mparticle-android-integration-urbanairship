@@ -7,13 +7,5 @@
             android:name="com.urbanairship.autopilot"
             android:value="com.mparticle.kits.MParticleAutopilot"/>
 
-        <receiver android:name="com.mparticle.kits.MParticleAirshipReceiver"
-                  android:exported="false">
-            <intent-filter>
-                <action android:name="com.urbanairship.push.CHANNEL_UPDATED" />
-                <category android:name="${applicationId}" />
-            </intent-filter>
-        </receiver>
-
     </application>
 </manifest>
