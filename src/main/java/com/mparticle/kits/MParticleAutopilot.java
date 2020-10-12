@@ -3,7 +3,7 @@ package com.mparticle.kits;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.mparticle.MParticle;
 import com.mparticle.internal.Logger;
