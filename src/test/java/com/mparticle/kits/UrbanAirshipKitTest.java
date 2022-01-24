@@ -46,7 +46,7 @@ public class UrbanAirshipKitTest {
             Map settings = new HashMap<>();
             settings.put("fake setting", "fake");
             kit.onKitCreate(settings, Mockito.mock(Context.class));
-        }catch (Exception ex) {
+        } catch (Exception ex) {
             e = ex;
         }
         assertNotNull(e);
@@ -67,11 +67,12 @@ public class UrbanAirshipKitTest {
 
     @Test
     public void testParsing() throws Exception {
-        JSONObject config = new JSONObject("{ \"id\": 25, \"as\": { \"applicationKey\": \"this is the app key\", \"applicationSecret\": \"this is the app secret\", \"applicationMasterSecret\": \"mySecret\", \"enableTags\": \"True\", \"includeUserAttributes\": \"False\", \"notificationIconName\": \"Application Icon\", \"notificationColor\": \"System default\", \"namedUserIdField\": \"customerId\", \"eventUserTags\": \"[{\\\"map\\\":\\\"847138800\\\",\\\"value\\\":\\\"pressed\\\",\\\"maptype\\\":\\\"EventClassDetails.Id\\\"},{\\\"map\\\":\\\"-1394780343\\\",\\\"value\\\":\\\"screen1\\\",\\\"maptype\\\":\\\"EventClass.Id\\\"},{\\\"map\\\":\\\"-2010155734\\\",\\\"value\\\":\\\"cart\\\",\\\"maptype\\\":\\\"EventClassDetails.Id\\\"}]\", \"eventAttributeUserTags\": \"[{\\\"map\\\":\\\"245922523\\\",\\\"value\\\":\\\"gesture\\\",\\\"maptype\\\":\\\"EventAttributeClass.Id\\\"},{\\\"map\\\":\\\"245922523\\\",\\\"value\\\":\\\"a2ctid\\\",\\\"maptype\\\":\\\"EventAttributeClass.Id\\\"},{\\\"map\\\":\\\"1112195452\\\",\\\"value\\\":\\\"hello\\\",\\\"maptype\\\":\\\"EventAttributeClassDetails.Id\\\"},{\\\"map\\\":\\\"-897761755\\\",\\\"value\\\":\\\"a\\\",\\\"maptype\\\":\\\"EventAttributeClassDetails.Id\\\"},{\\\"map\\\":\\\"-635338283\\\",\\\"value\\\":\\\"b\\\",\\\"maptype\\\":\\\"EventAttributeClassDetails.Id\\\"},{\\\"map\\\":\\\"-1165857198\\\",\\\"value\\\":\\\"c\\\",\\\"maptype\\\":\\\"EventAttributeClassDetails.Id\\\"},{\\\"map\\\":\\\"-2093257886\\\",\\\"value\\\":\\\"d\\\",\\\"maptype\\\":\\\"EventAttributeClass.Id\\\"},{\\\"map\\\":\\\"-599719438\\\",\\\"value\\\":\\\"e\\\",\\\"maptype\\\":\\\"EventAttributeClassDetails.Id\\\"}]\" }, \"hs\": {}, \"pr\": [] }");
+        JSONObject config = new JSONObject("{ \"id\": 25, \"as\": { \"applicationKey\": \"this is the app key\", \"applicationSecret\": \"this is the app secret\", \"applicationMasterSecret\": \"mySecret\", \"domain\": \"EU\", \"enableTags\": \"True\", \"includeUserAttributes\": \"False\", \"notificationIconName\": \"Application Icon\", \"notificationColor\": \"System default\", \"namedUserIdField\": \"customerId\", \"eventUserTags\": \"[{\\\"map\\\":\\\"847138800\\\",\\\"value\\\":\\\"pressed\\\",\\\"maptype\\\":\\\"EventClassDetails.Id\\\"},{\\\"map\\\":\\\"-1394780343\\\",\\\"value\\\":\\\"screen1\\\",\\\"maptype\\\":\\\"EventClass.Id\\\"},{\\\"map\\\":\\\"-2010155734\\\",\\\"value\\\":\\\"cart\\\",\\\"maptype\\\":\\\"EventClassDetails.Id\\\"}]\", \"eventAttributeUserTags\": \"[{\\\"map\\\":\\\"245922523\\\",\\\"value\\\":\\\"gesture\\\",\\\"maptype\\\":\\\"EventAttributeClass.Id\\\"},{\\\"map\\\":\\\"245922523\\\",\\\"value\\\":\\\"a2ctid\\\",\\\"maptype\\\":\\\"EventAttributeClass.Id\\\"},{\\\"map\\\":\\\"1112195452\\\",\\\"value\\\":\\\"hello\\\",\\\"maptype\\\":\\\"EventAttributeClassDetails.Id\\\"},{\\\"map\\\":\\\"-897761755\\\",\\\"value\\\":\\\"a\\\",\\\"maptype\\\":\\\"EventAttributeClassDetails.Id\\\"},{\\\"map\\\":\\\"-635338283\\\",\\\"value\\\":\\\"b\\\",\\\"maptype\\\":\\\"EventAttributeClassDetails.Id\\\"},{\\\"map\\\":\\\"-1165857198\\\",\\\"value\\\":\\\"c\\\",\\\"maptype\\\":\\\"EventAttributeClassDetails.Id\\\"},{\\\"map\\\":\\\"-2093257886\\\",\\\"value\\\":\\\"d\\\",\\\"maptype\\\":\\\"EventAttributeClass.Id\\\"},{\\\"map\\\":\\\"-599719438\\\",\\\"value\\\":\\\"e\\\",\\\"maptype\\\":\\\"EventAttributeClassDetails.Id\\\"}]\" }, \"hs\": {}, \"pr\": [] }");
         KitConfiguration kitConfig = MockKitConfiguration.createKitConfiguration(config);
         UrbanAirshipConfiguration urbanAirshipConfiguration = new UrbanAirshipConfiguration(kitConfig.getSettings());
         assertEquals("this is the app key", urbanAirshipConfiguration.getApplicationKey());
         assertEquals("this is the app secret", urbanAirshipConfiguration.getApplicationSecret());
+        assertEquals("EU", urbanAirshipConfiguration.getDomain());
         assertEquals(true, urbanAirshipConfiguration.getEnableTags());
         assertEquals(false, urbanAirshipConfiguration.getIncludeUserAttributes());
         assertEquals("Application Icon", urbanAirshipConfiguration.getNotificationIconName());

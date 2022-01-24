@@ -14,6 +14,7 @@ public class UrbanAirshipConfiguration {
 
     private static final String KEY_APP_KEY = "applicationKey";
     private static final String KEY_APP_SECRET = "applicationSecret";
+    private static final String KEY_DOMAIN = "domain";
     private static final String KEY_ENABLE_TAGS = "enableTags";
     private static final String KEY_USER_ID_FIELD = "namedUserIdField";
     private static final String KEY_EVENT_USER_TAGS = "eventUserTags";
@@ -29,6 +30,7 @@ public class UrbanAirshipConfiguration {
 
     private String applicationKey;
     private String applicationSecret;
+    private String domain;
     private boolean enableTags;
     private boolean includeUserAttributes;
     private MParticle.IdentityType userIdField;
@@ -42,6 +44,7 @@ public class UrbanAirshipConfiguration {
     public UrbanAirshipConfiguration(Map<String, String> settings) {
         applicationKey = settings.get(KEY_APP_KEY);
         applicationSecret = settings.get(KEY_APP_SECRET);
+        domain = settings.get(KEY_DOMAIN);
         enableTags = KitUtils.parseBooleanSetting(settings, KEY_ENABLE_TAGS, true);
         userIdField = parseNamedUserIdentityType(settings.get(KEY_USER_ID_FIELD));
 
@@ -50,9 +53,7 @@ public class UrbanAirshipConfiguration {
             try {
                 JSONArray eventUserTagsJson = new JSONArray(eventUserTagsString);
                 parseTagsJson(eventUserTagsJson);
-            } catch (Exception e) {
-
-            }
+            } catch (Exception ignored) { }
         }
 
         if (settings.containsKey(KEY_EVENT_ATTRIBUTE_USER_TAGS)) {
@@ -60,9 +61,7 @@ public class UrbanAirshipConfiguration {
             try {
                 JSONArray eventAttributeUserTagsJson = new JSONArray(eventAttributeUserTagsString);
                 parseTagsJson(eventAttributeUserTagsJson);
-            } catch (Exception e) {
-
-            }
+            } catch (Exception ignored) { }
         }
         if (settings.containsKey(KEY_NOTIFICATION_COLOR)) {
             notificationColor = settings.get(KEY_NOTIFICATION_COLOR);
@@ -103,6 +102,10 @@ public class UrbanAirshipConfiguration {
 
     public String getApplicationSecret() {
         return applicationSecret;
+    }
+
+    public String getDomain() {
+        return domain;
     }
 
     public boolean getEnableTags() {
@@ -154,9 +157,7 @@ public class UrbanAirshipConfiguration {
                     }
                     eventMap.get(hash).add(tagValue);
                 }
-            } catch (JSONException e) {
-
-            }
+            } catch (JSONException ignored) { }
         }
     }
 

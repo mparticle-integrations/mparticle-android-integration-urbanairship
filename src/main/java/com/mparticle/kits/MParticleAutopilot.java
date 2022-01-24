@@ -3,6 +3,7 @@ package com.mparticle.kits;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+
 import androidx.annotation.NonNull;
 
 import com.mparticle.MParticle;
@@ -23,6 +24,7 @@ public class MParticleAutopilot extends Autopilot {
     //persistence keys
     private static final String APP_KEY = "applicationKey";
     private static final String APP_SECRET = "applicationSecret";
+    private static final String DOMAIN = "domain";
     private static final String NOTIFICATION_ICON_NAME = "notificationIconName";
     private static final String NOTIFICATION_COLOR = "notificationColor";
 
@@ -46,6 +48,10 @@ public class MParticleAutopilot extends Autopilot {
             optionsBuilder.setProductionAppKey(preferences.getString(APP_KEY, null))
                     .setProductionAppSecret(preferences.getString(APP_SECRET, null))
                     .setInProduction(true);
+        }
+
+        if ("EU".equalsIgnoreCase(preferences.getString(DOMAIN, null))) {
+            optionsBuilder.setSite(AirshipConfigOptions.SITE_EU);
         }
 
         return optionsBuilder.build();
@@ -98,7 +104,8 @@ public class MParticleAutopilot extends Autopilot {
         SharedPreferences.Editor editor = context.getSharedPreferences(PREFERENCE_NAME, Context.MODE_PRIVATE)
                 .edit()
                 .putString(APP_KEY, configuration.getApplicationKey())
-                .putString(APP_SECRET, configuration.getApplicationSecret());
+                .putString(APP_SECRET, configuration.getApplicationSecret())
+                .putString(DOMAIN, configuration.getDomain());
 
         // Convert accent color hex string to an int
         String accentColor = configuration.getNotificationColor();
