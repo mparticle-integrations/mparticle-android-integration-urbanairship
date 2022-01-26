@@ -35,5 +35,5 @@ dependencies {
     api 'com.urbanairship.android:urbanairship-core:16.1.1'
     testImplementation 'junit:junit:4.13.2'
     testImplementation files('libs/java-json.jar')
-    testImplementation "org.mockito:mockito-core:4.3.0"
+    testImplementation "org.mockito:mockito-core:4.3.1"
 }
