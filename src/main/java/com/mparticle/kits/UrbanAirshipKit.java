@@ -380,8 +380,8 @@ public class UrbanAirshipKit extends KitIntegration implements  KitIntegration.P
      */
     private void logUrbanAirshipEvent(MPEvent event) {
         CustomEvent.Builder eventBuilder = new CustomEvent.Builder(event.getEventName());
-        if (event.getInfo() != null) {
-            eventBuilder.setProperties(JsonValue.wrapOpt(event.getInfo()).optMap());
+        if (event.getCustomAttributeStrings() != null) {
+            eventBuilder.setProperties(JsonValue.wrapOpt(event.getCustomAttributeStrings()).optMap());
         }
 
         UAirship.shared().getAnalytics().addEvent(eventBuilder.build());
@@ -392,8 +392,8 @@ public class UrbanAirshipKit extends KitIntegration implements  KitIntegration.P
         if (configuration.getEventClass() != null && configuration.getEventClass().containsKey(event.getEventHash())) {
             tags.addAll(configuration.getEventClass().get(event.getEventHash()));
         }
-        if (configuration.getEventAttributeClass() != null && event.getInfo() != null) {
-            for (Map.Entry<String, String> attribute : event.getInfo().entrySet()) {
+        if (configuration.getEventAttributeClass() != null && event.getCustomAttributeStrings() != null) {
+            for (Map.Entry<String, String> attribute : event.getCustomAttributeStrings().entrySet()) {
                 int hash = KitUtils.hashForFiltering(event.getEventType().ordinal() +
                         event.getEventName() +
                         attribute.getKey()
@@ -423,8 +423,8 @@ public class UrbanAirshipKit extends KitIntegration implements  KitIntegration.P
         if (configuration.getEventAttributeClassDetails() != null) {
             List<MPEvent> expandedEvents = CommerceEventUtils.expand(commerceEvent);
             for (MPEvent event : expandedEvents) {
-                if (event.getInfo() != null) {
-                    for (Map.Entry<String, String> attribute : event.getInfo().entrySet()) {
+                if (event.getCustomAttributeStrings() != null) {
+                    for (Map.Entry<String, String> attribute : event.getCustomAttributeStrings().entrySet()) {
                         int hash = KitUtils.hashForFiltering(CommerceEventUtils.getEventType(commerceEvent) +
                                 attribute.getKey()
                         );

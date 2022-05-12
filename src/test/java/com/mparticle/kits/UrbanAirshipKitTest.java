@@ -123,7 +123,7 @@ public class UrbanAirshipKitTest {
         kit.setUrbanConfiguration(urbanAirshipConfiguration);
         Map<String, String> attributes = new HashMap<>();
         attributes.put("searchTerm", "anything");
-        MPEvent event = new MPEvent.Builder("search").eventType(MParticle.EventType.Search).info(attributes).build();
+        MPEvent event = new MPEvent.Builder("search").eventType(MParticle.EventType.Search).customAttributes(attributes).build();
         Set<String> set = kit.extractTags(event);
         assertEquals(2, set.size());
         assertTrue(set.contains("test event attribute"));
