@@ -17,7 +17,7 @@ This repository contains the [Urban Airship](https://www.urbanairship.com) integ
 
 ### Documentation
 
-[Urban Airship integration](http://docs.mparticle.com/?java#urban-airship)
+[Urban Airship integration](https://docs.mparticle.com/integrations/airship/event/)
 
 ### License
 
