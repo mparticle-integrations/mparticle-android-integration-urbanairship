@@ -28,6 +28,13 @@ Most clients prefer for all tags to remain constant if set. But, a tag can be re
     .apply();
 ```
 
+#### Kotlin
+```kotlin
+    UAirship.shared().getChannel().editTags()
+    .removeTag("some_tag")
+    .apply()
+```
+
 ### Documentation
 
 [Urban Airship integration](https://docs.mparticle.com/integrations/airship/event/)
