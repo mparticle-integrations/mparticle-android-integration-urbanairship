@@ -21,6 +21,7 @@ class MParticleAutopilot : Autopilot() {
             .setNotificationIcon(preferences.getInt(NOTIFICATION_ICON_NAME, 0))
             .setNotificationAccentColor(preferences.getInt(NOTIFICATION_COLOR, 0))
             .setCustomPushProvider(MParticlePushProvider.instance)
+            .setIsPromptForPermissionOnUserNotificationsEnabled(false)
         if (MParticle.getInstance()?.environment == MParticle.Environment.Development) {
             optionsBuilder.setDevelopmentAppKey(preferences.getString(APP_KEY, null))
                 .setDevelopmentAppSecret(preferences.getString(APP_SECRET, null))
