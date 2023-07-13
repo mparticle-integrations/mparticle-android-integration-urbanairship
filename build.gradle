@@ -41,7 +41,7 @@ android {
 
 dependencies {
     compileOnly 'androidx.legacy:legacy-support-v4:1.0.0'
-    api 'com.urbanairship.android:urbanairship-core:16.9.0'
+    api 'com.urbanairship.android:urbanairship-core:17.0.3'
     testImplementation 'junit:junit:4.13.2'
     testImplementation files('libs/java-json.jar')
 }
