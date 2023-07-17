@@ -3,6 +3,7 @@ package com.mparticle.kits
 import android.content.Context
 import com.mparticle.MPEvent
 import com.mparticle.MParticle
+import com.mparticle.MParticleOptions
 import com.mparticle.commerce.CommerceEvent
 import com.mparticle.commerce.Product
 import com.mparticle.commerce.TransactionAttributes
@@ -44,11 +45,12 @@ class UrbanAirshipKitTest2 {
     @Test
     @Throws(Exception::class)
     fun testClassName() {
-        val factory = KitIntegrationFactory()
-        val integrations = factory.knownIntegrations
+        val options = Mockito.mock(MParticleOptions::class.java)
+        val factory = KitIntegrationFactory(options)
+        val integrations = factory.supportedKits.values
         val className = kit.javaClass.name
         for (integration in integrations) {
-            if (integration.value == className) {
+            if (integration.name == className) {
                 return
             }
         }
