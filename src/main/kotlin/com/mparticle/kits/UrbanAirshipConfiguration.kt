@@ -10,6 +10,7 @@ class UrbanAirshipConfiguration(settings: Map<String, String>) {
     val applicationKey: String?
     val applicationSecret: String?
     val domain: String?
+    val initialConfigUrl: String?
     val enableTags: Boolean
     val includeUserAttributes: Boolean
     val userIdField: IdentityType?
@@ -67,6 +68,7 @@ class UrbanAirshipConfiguration(settings: Map<String, String>) {
         private const val KEY_APP_KEY = "applicationKey"
         private const val KEY_APP_SECRET = "applicationSecret"
         private const val KEY_DOMAIN = "domain"
+        private const val KEY_INITIAL_CONFIG_URL = "initialConfigUrl"
         private const val KEY_ENABLE_TAGS = "enableTags"
         private const val KEY_USER_ID_FIELD = "namedUserIdField"
         private const val KEY_EVENT_USER_TAGS = "eventUserTags"
@@ -95,6 +97,9 @@ class UrbanAirshipConfiguration(settings: Map<String, String>) {
         applicationKey = settings[KEY_APP_KEY]
         applicationSecret = settings[KEY_APP_SECRET]
         domain = settings[KEY_DOMAIN]
+        if (settings.containsKey(KEY_INITIAL_CONFIG_URL)) {
+            initialConfigUrl = settings[KEY_INITIAL_CONFIG_URL]
+        }
         enableTags = KitUtils.parseBooleanSetting(settings, KEY_ENABLE_TAGS, true)
         userIdField = parseNamedUserIdentityType(settings[KEY_USER_ID_FIELD])
         if (settings.containsKey(KEY_EVENT_USER_TAGS)) {
