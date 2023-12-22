@@ -35,10 +35,10 @@ class MParticleAutopilot : Autopilot() {
         if ("EU".equals(preferences.getString(DOMAIN, null), true)) {
             optionsBuilder.setSite(AirshipConfigOptions.SITE_EU)
         }
-        val custom_domain = preferences.getString(INITIAL_CONFIG_URL, null)
-        if (!UAStringUtil.isEmpty(custom_domain)) {
-            optionsBuilder.setInitialConfigUrl(custom_domain)
-                .setUrlAllowList(arrayOf(custom_domain))
+        val customDomain = preferences.getString(CUSTOM_DOMAIN_PROXY_URL, null)
+        if (!UAStringUtil.isEmpty(customDomain)) {
+            optionsBuilder.setInitialConfigUrl(customDomain)
+                .setUrlAllowList(arrayOf(customDomain))
         }
         return optionsBuilder.build()
     }
@@ -77,7 +77,7 @@ class MParticleAutopilot : Autopilot() {
         private const val APP_KEY = "applicationKey"
         private const val APP_SECRET = "applicationSecret"
         private const val DOMAIN = "domain"
-        private const val INITIAL_CONFIG_URL = "initialConfigUrl"
+        private const val CUSTOM_DOMAIN_PROXY_URL = "customDomainProxyUrl"
         private const val NOTIFICATION_ICON_NAME = "notificationIconName"
         private const val NOTIFICATION_COLOR = "notificationColor"
 
@@ -96,7 +96,7 @@ class MParticleAutopilot : Autopilot() {
                 .putString(APP_KEY, configuration.applicationKey)
                 .putString(APP_SECRET, configuration.applicationSecret)
                 .putString(DOMAIN, configuration.domain)
-                .putString(INITIAL_CONFIG_URL, configuration.initialConfigUrl)
+                .putString(CUSTOM_DOMAIN_PROXY_URL, configuration.customDomainProxyUrl)
 
             // Convert accent color hex string to an int
             val accentColor = configuration.notificationColor
