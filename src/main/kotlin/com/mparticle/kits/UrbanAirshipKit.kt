@@ -1,26 +1,22 @@
 package com.mparticle.kits
 
 import android.content.Context
+import android.content.Intent
+import com.mparticle.MPEvent
+import com.mparticle.MParticle.IdentityType
+import com.mparticle.commerce.CommerceEvent
+import com.mparticle.commerce.Product
 import com.mparticle.kits.KitIntegration.CommerceListener
 import com.urbanairship.Autopilot
 import com.urbanairship.UAirship
-import android.content.Intent
-import com.urbanairship.analytics.InstallReceiver
-import com.urbanairship.push.PushMessage
-import com.urbanairship.push.PushProviderBridge
-import java.lang.Exception
-import com.mparticle.MPEvent
 import com.urbanairship.analytics.CustomEvent
-import com.mparticle.commerce.CommerceEvent
-import java.util.LinkedList
-import com.mparticle.MParticle.IdentityType
-import com.mparticle.commerce.Product
+import com.urbanairship.analytics.InstallReceiver
 import com.urbanairship.analytics.RetailEventTemplate
 import com.urbanairship.json.JsonValue
-import java.util.HashSet
+import com.urbanairship.push.PushMessage
+import com.urbanairship.push.PushProviderBridge
 import java.math.BigDecimal
-import java.util.ArrayList
-import java.util.HashMap
+import java.util.LinkedList
 
 /**
  * mParticle-Urban Airship Kit integration
@@ -193,7 +189,7 @@ class UrbanAirshipKit : KitIntegration(), KitIntegration.PushListener, KitIntegr
                 .apply()
         }
         if (identityType == configuration?.userIdField) {
-            UAirship.shared().namedUser.id = identity
+            UAirship.shared().contact.identify(identity) // Previously setting namedUser but now is immutable
         }
     }
 
@@ -206,7 +202,7 @@ class UrbanAirshipKit : KitIntegration(), KitIntegration.PushListener, KitIntegr
                 .apply()
         }
         if (identityType == configuration?.userIdField) {
-            UAirship.shared().namedUser.id = null
+            UAirship.shared().contact.reset() // Previously setting namedUser to null but now is immutable
         }
     }
 

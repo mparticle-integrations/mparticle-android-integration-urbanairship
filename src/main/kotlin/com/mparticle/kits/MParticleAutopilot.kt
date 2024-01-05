@@ -9,6 +9,7 @@ import com.urbanairship.AirshipConfigOptions
 import com.urbanairship.Autopilot
 import com.urbanairship.UAirship
 import com.urbanairship.channel.AirshipChannelListener
+import com.urbanairship.push.PushNotificationStatus
 import com.urbanairship.util.UAStringUtil
 
 /**
@@ -49,22 +50,23 @@ class MParticleAutopilot : Autopilot() {
         val token = airship.pushManager.pushToken
         MParticlePushProvider.instance.setRegistrationToken(token)
         airship.channel.addChannelListener(object : AirshipChannelListener {
-            override fun onChannelCreated(s: String) {
-                callChannelIdListener()
+            override fun onChannelCreated(channelId: String) {
+                
             }
 
-            override fun onChannelUpdated(s: String) {
-                callChannelIdListener()
-            }
-
-            private fun callChannelIdListener() {
-                val channelIdListener = MParticle.getInstance()
-                    ?.getKitInstance(MParticle.ServiceProviders.URBAN_AIRSHIP)
-                if (channelIdListener != null) {
-                    (channelIdListener as ChannelIdListener).channelIdUpdated()
-                }
-            }
         })
+        fun callChannelIdListener() {
+            val channelIdListener = MParticle.getInstance()
+                ?.getKitInstance(MParticle.ServiceProviders.URBAN_AIRSHIP)
+            if (channelIdListener != null) {
+                (channelIdListener as ChannelIdListener).channelIdUpdated()
+            }
+        }
+        //The onChange fun within the AirshipChannelListener was removed.
+        //PushNotificationStatusListener reporting changes instead (ref. [#https://github.com/urbanairship/android-library/blob/17.0.0/documentation/migration/migration-guide-16-17.md])
+        airship.pushManager.addNotificationStatusListener { callChannelIdListener() }
+
+        airship.channel.addChannelListener { callChannelIdListener() }
     }
 
     override fun allowEarlyTakeOff(context: Context): Boolean = false
