@@ -49,24 +49,17 @@ class MParticleAutopilot : Autopilot() {
         // Restore the last registration token
         val token = airship.pushManager.pushToken
         MParticlePushProvider.instance.setRegistrationToken(token)
-        airship.channel.addChannelListener(object : AirshipChannelListener {
-            override fun onChannelCreated(channelId: String) {
-                
-            }
-
-        })
-        fun callChannelIdListener() {
-            val channelIdListener = MParticle.getInstance()
-                ?.getKitInstance(MParticle.ServiceProviders.URBAN_AIRSHIP)
-            if (channelIdListener != null) {
-                (channelIdListener as ChannelIdListener).channelIdUpdated()
-            }
-        }
-        //The onChange fun within the AirshipChannelListener was removed.
-        //PushNotificationStatusListener reporting changes instead (ref. [#https://github.com/urbanairship/android-library/blob/17.0.0/documentation/migration/migration-guide-16-17.md])
-        airship.pushManager.addNotificationStatusListener { callChannelIdListener() }
-
         airship.channel.addChannelListener { callChannelIdListener() }
+
+        callChannelIdListener()
+    }
+
+    fun callChannelIdListener() {
+        val channelIdListener = MParticle.getInstance()
+            ?.getKitInstance(MParticle.ServiceProviders.URBAN_AIRSHIP)
+        if (channelIdListener != null) {
+            (channelIdListener as ChannelIdListener).channelIdUpdated()
+        }
     }
 
     override fun allowEarlyTakeOff(context: Context): Boolean = false

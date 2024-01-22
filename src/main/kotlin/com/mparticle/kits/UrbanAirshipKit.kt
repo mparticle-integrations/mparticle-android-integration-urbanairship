@@ -201,7 +201,7 @@ class UrbanAirshipKit : KitIntegration(), KitIntegration.PushListener, KitIntegr
                 .removeIdentifier(airshipId)
                 .apply()
         }
-        if (identityType == configuration?.userIdField) {
+        if (identityType == configuration?.userIdField && UAirship.shared().contact.namedUserId != null) {
             UAirship.shared().contact.reset() // Previously setting namedUser to null but now is immutable
         }
     }
