@@ -9,6 +9,7 @@ import com.urbanairship.AirshipConfigOptions
 import com.urbanairship.Autopilot
 import com.urbanairship.UAirship
 import com.urbanairship.channel.AirshipChannelListener
+import com.urbanairship.push.PushNotificationStatus
 import com.urbanairship.util.UAStringUtil
 
 /**
@@ -48,23 +49,17 @@ class MParticleAutopilot : Autopilot() {
         // Restore the last registration token
         val token = airship.pushManager.pushToken
         MParticlePushProvider.instance.setRegistrationToken(token)
-        airship.channel.addChannelListener(object : AirshipChannelListener {
-            override fun onChannelCreated(s: String) {
-                callChannelIdListener()
-            }
+        airship.channel.addChannelListener { callChannelIdListener() }
 
-            override fun onChannelUpdated(s: String) {
-                callChannelIdListener()
-            }
+        callChannelIdListener()
+    }
 
-            private fun callChannelIdListener() {
-                val channelIdListener = MParticle.getInstance()
-                    ?.getKitInstance(MParticle.ServiceProviders.URBAN_AIRSHIP)
-                if (channelIdListener != null) {
-                    (channelIdListener as ChannelIdListener).channelIdUpdated()
-                }
-            }
-        })
+    fun callChannelIdListener() {
+        val channelIdListener = MParticle.getInstance()
+            ?.getKitInstance(MParticle.ServiceProviders.URBAN_AIRSHIP)
+        if (channelIdListener != null) {
+            (channelIdListener as ChannelIdListener).channelIdUpdated()
+        }
     }
 
     override fun allowEarlyTakeOff(context: Context): Boolean = false
