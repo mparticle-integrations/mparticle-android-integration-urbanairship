@@ -99,6 +99,8 @@ class UrbanAirshipConfiguration(settings: Map<String, String>) {
         domain = settings[KEY_DOMAIN]
         if (settings.containsKey(KEY_CUSTOM_DOMAIN_PROXY_URL)) {
             customDomainProxyUrl = settings[KEY_CUSTOM_DOMAIN_PROXY_URL]
+        } else {
+            customDomainProxyUrl = null
         }
         enableTags = KitUtils.parseBooleanSetting(settings, KEY_ENABLE_TAGS, true)
         userIdField = parseNamedUserIdentityType(settings[KEY_USER_ID_FIELD])
