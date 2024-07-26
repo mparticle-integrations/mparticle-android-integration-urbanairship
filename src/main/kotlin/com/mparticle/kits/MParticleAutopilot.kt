@@ -1,15 +1,15 @@
 package com.mparticle.kits
 
+import android.R
 import android.content.Context
 import android.graphics.Color
+import android.util.TypedValue
 import com.mparticle.MParticle
 import com.mparticle.internal.Logger
 import com.mparticle.kits.UrbanAirshipKit.ChannelIdListener
 import com.urbanairship.AirshipConfigOptions
 import com.urbanairship.Autopilot
 import com.urbanairship.UAirship
-import com.urbanairship.channel.AirshipChannelListener
-import com.urbanairship.push.PushNotificationStatus
 import com.urbanairship.util.UAStringUtil
 
 /**
@@ -37,8 +37,7 @@ class MParticleAutopilot : Autopilot() {
         }
         val customDomain = preferences.getString(CUSTOM_DOMAIN_PROXY_URL, null)
         if (!UAStringUtil.isEmpty(customDomain)) {
-            optionsBuilder.setInitialConfigUrl(customDomain)
-                .setUrlAllowList(arrayOf(customDomain))
+            optionsBuilder.setInitialConfigUrl(customDomain).setUrlAllowList(arrayOf(customDomain))
         }
         return optionsBuilder.build()
     }
@@ -60,8 +59,8 @@ class MParticleAutopilot : Autopilot() {
     }
 
     fun callChannelIdListener() {
-        val channelIdListener = MParticle.getInstance()
-            ?.getKitInstance(MParticle.ServiceProviders.URBAN_AIRSHIP)
+        val channelIdListener =
+            MParticle.getInstance()?.getKitInstance(MParticle.ServiceProviders.URBAN_AIRSHIP)
         if (channelIdListener != null) {
             (channelIdListener as ChannelIdListener).channelIdUpdated()
         }
@@ -91,8 +90,7 @@ class MParticleAutopilot : Autopilot() {
          * @param configuration UrbanAirshipKit configuration.
          */
         fun updateConfig(context: Context, configuration: UrbanAirshipConfiguration) {
-            val editor = context.getSharedPreferences(PREFERENCE_NAME, Context.MODE_PRIVATE)
-                .edit()
+            val editor = context.getSharedPreferences(PREFERENCE_NAME, Context.MODE_PRIVATE).edit()
                 .putString(APP_KEY, configuration.applicationKey)
                 .putString(APP_SECRET, configuration.applicationSecret)
                 .putString(DOMAIN, configuration.domain)
@@ -102,7 +100,17 @@ class MParticleAutopilot : Autopilot() {
             val accentColor = configuration.notificationColor
             if (!UAStringUtil.isEmpty(accentColor)) {
                 try {
-                    editor.putInt(NOTIFICATION_COLOR, Color.parseColor(accentColor))
+                    val colorValue = when {
+                        accentColor.equals("System default") -> {
+                            val typedValue = TypedValue()
+                            val theme = context.theme
+                            theme.resolveAttribute(R.attr.windowBackground, typedValue, true)
+                            typedValue.data
+                        }
+
+                        else -> Color.parseColor(accentColor)
+                    }
+                    editor.putInt(NOTIFICATION_COLOR, colorValue)
                 } catch (e: IllegalArgumentException) {
                     Logger.warning(e, "Unable to parse notification accent color: $accentColor")
                 }
@@ -112,9 +120,7 @@ class MParticleAutopilot : Autopilot() {
             val notificationIconName = configuration.notificationIconName
             if (!UAStringUtil.isEmpty(notificationIconName)) {
                 val id = context.resources.getIdentifier(
-                    notificationIconName,
-                    "drawable",
-                    context.packageName
+                    notificationIconName, "drawable", context.packageName
                 )
                 if (id != 0) {
                     editor.putInt(NOTIFICATION_ICON_NAME, id)
