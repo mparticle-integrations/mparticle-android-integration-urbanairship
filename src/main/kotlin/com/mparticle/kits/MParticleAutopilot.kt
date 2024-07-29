@@ -100,24 +100,8 @@ class MParticleAutopilot : Autopilot() {
             val accentColor = configuration.notificationColor
             if (!UAStringUtil.isEmpty(accentColor)) {
                 try {
-                    val colorValue = when {
-                        accentColor.equals("System default", ignoreCase = true) -> {
-                            val typedValue = TypedValue()
-                            val theme = context.theme
-                            theme.resolveAttribute(R.attr.windowBackground, typedValue, true)
-                            typedValue.data
-                        }
-
-                        else -> Color.parseColor(accentColor)
-                    }
-                    editor.putInt(NOTIFICATION_COLOR, colorValue)
+                    editor.putInt(NOTIFICATION_COLOR, Color.parseColor(accentColor))
                 } catch (e: IllegalArgumentException) {
-                    //  Handle parsing errors by setting the default color
-                    val typedValue = TypedValue()
-                    val theme = context.theme
-                    theme.resolveAttribute(R.attr.windowBackground, typedValue, true)
-                    val defaultColor = typedValue.data
-                    editor.putInt(NOTIFICATION_COLOR, defaultColor)
                     Logger.warning(e, "Unable to parse notification accent color: $accentColor")
                 }
             }
