@@ -63,7 +63,7 @@ class UrbanAirshipKit : KitIntegration(), KitIntegration.PushListener, KitIntegr
 
     override fun setOptOut(optedOut: Boolean): List<ReportingMessage> {
         UAirship.shared().privacyManager.setEnabledFeatures(
-            if (optedOut) PrivacyManager.Feature.ALL else PrivacyManager.Feature.NONE
+            if (optedOut) PrivacyManager.Feature.NONE else PrivacyManager.Feature.ALL
         )
         val message = ReportingMessage(
             this,
