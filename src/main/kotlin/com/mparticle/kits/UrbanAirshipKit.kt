@@ -8,6 +8,7 @@ import com.mparticle.commerce.CommerceEvent
 import com.mparticle.commerce.Product
 import com.mparticle.kits.KitIntegration.CommerceListener
 import com.urbanairship.Autopilot
+import com.urbanairship.PrivacyManager
 import com.urbanairship.UAirship
 import com.urbanairship.analytics.CustomEvent
 import com.urbanairship.analytics.InstallReceiver
@@ -61,7 +62,9 @@ class UrbanAirshipKit : KitIntegration(), KitIntegration.PushListener, KitIntegr
     }
 
     override fun setOptOut(optedOut: Boolean): List<ReportingMessage> {
-        UAirship.shared().isDataCollectionEnabled = !optedOut
+        UAirship.shared().privacyManager.setEnabledFeatures(
+            if (optedOut) PrivacyManager.Feature.NONE else PrivacyManager.Feature.ALL
+        )
         val message = ReportingMessage(
             this,
             ReportingMessage.MessageType.OPT_OUT,
@@ -94,7 +97,11 @@ class UrbanAirshipKit : KitIntegration(), KitIntegration.PushListener, KitIntegr
 
     override fun onPushRegistration(instanceId: String, senderId: String): Boolean {
         MParticlePushProvider.instance.setRegistrationToken(instanceId)
-        PushProviderBridge.requestRegistrationUpdate(context)
+        PushProviderBridge.requestRegistrationUpdate(
+            context,
+            MParticlePushProvider.instance::class.java,
+            instanceId
+        )
         return true
     }
 
@@ -150,7 +157,7 @@ class UrbanAirshipKit : KitIntegration(), KitIntegration.PushListener, KitIntegr
         val customEvent = CustomEvent.Builder(eventName)
             .setEventValue(valueIncreased)
             .build()
-        UAirship.shared().analytics.addEvent(customEvent)
+        UAirship.shared().analytics.recordCustomEvent(customEvent)
         val message = ReportingMessage(
             this,
             ReportingMessage.MessageType.EVENT,
@@ -340,7 +347,7 @@ class UrbanAirshipKit : KitIntegration(), KitIntegration.PushListener, KitIntegr
         if (event.customAttributeStrings != null) {
             eventBuilder.setProperties(JsonValue.wrapOpt(event.customAttributeStrings).optMap())
         }
-        UAirship.shared().analytics.addEvent(eventBuilder.build())
+        UAirship.shared().analytics.recordCustomEvent(eventBuilder.build())
     }
 
     fun extractTags(event: MPEvent): Set<String> {
