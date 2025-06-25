@@ -34,6 +34,7 @@ apply plugin: 'com.mparticle.kit'
 apply plugin: 'kotlin-android'
 
 android {
+    compileSdk = 33
     defaultConfig {
         minSdkVersion 23
     }
@@ -41,7 +42,7 @@ android {
 
 dependencies {
     compileOnly 'androidx.legacy:legacy-support-v4:1.0.0'
-    api 'com.urbanairship.android:urbanairship-core:19.3.0'
+    api 'com.urbanairship.android:urbanairship-core:19.9.1'
     testImplementation 'junit:junit:4.13.2'
     testImplementation files('libs/java-json.jar')
 }
