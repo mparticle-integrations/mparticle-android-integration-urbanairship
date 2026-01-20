@@ -37,6 +37,9 @@ apply plugin: 'com.mparticle.kit'
 android {
     namespace 'com.mparticle.kits.urbanairship'
     compileSdk = 33
+    buildFeatures {
+        buildConfig = true
+    }
     defaultConfig {
         minSdkVersion 23
     }
