@@ -1,9 +1,7 @@
 package com.mparticle.kits
 
-import android.R
 import android.content.Context
 import android.graphics.Color
-import android.util.TypedValue
 import com.mparticle.MParticle
 import com.mparticle.internal.Logger
 import com.mparticle.kits.UrbanAirshipKit.ChannelIdListener
@@ -18,17 +16,21 @@ import com.urbanairship.util.UAStringUtil
 class MParticleAutopilot : Autopilot() {
     override fun createAirshipConfigOptions(context: Context): AirshipConfigOptions {
         val preferences = context.getSharedPreferences(PREFERENCE_NAME, Context.MODE_PRIVATE)
-        val optionsBuilder = AirshipConfigOptions.Builder()
-            .setNotificationIcon(preferences.getInt(NOTIFICATION_ICON_NAME, 0))
-            .setNotificationAccentColor(preferences.getInt(NOTIFICATION_COLOR, 0))
-            .setCustomPushProvider(MParticlePushProvider.instance)
-            .setIsPromptForPermissionOnUserNotificationsEnabled(false)
+        val optionsBuilder =
+            AirshipConfigOptions
+                .Builder()
+                .setNotificationIcon(preferences.getInt(NOTIFICATION_ICON_NAME, 0))
+                .setNotificationAccentColor(preferences.getInt(NOTIFICATION_COLOR, 0))
+                .setCustomPushProvider(MParticlePushProvider.instance)
+                .setIsPromptForPermissionOnUserNotificationsEnabled(false)
         if (MParticle.getInstance()?.environment == MParticle.Environment.Development) {
-            optionsBuilder.setDevelopmentAppKey(preferences.getString(APP_KEY, null))
+            optionsBuilder
+                .setDevelopmentAppKey(preferences.getString(APP_KEY, null))
                 .setDevelopmentAppSecret(preferences.getString(APP_SECRET, null))
                 .setInProduction(false)
         } else {
-            optionsBuilder.setProductionAppKey(preferences.getString(APP_KEY, null))
+            optionsBuilder
+                .setProductionAppKey(preferences.getString(APP_KEY, null))
                 .setProductionAppSecret(preferences.getString(APP_SECRET, null))
                 .setInProduction(true)
         }
@@ -43,8 +45,10 @@ class MParticleAutopilot : Autopilot() {
     }
 
     override fun onAirshipReady(airship: UAirship) {
-        val preferences = UAirship.getApplicationContext()
-            .getSharedPreferences(PREFERENCE_NAME, Context.MODE_PRIVATE)
+        val preferences =
+            UAirship
+                .getApplicationContext()
+                .getSharedPreferences(PREFERENCE_NAME, Context.MODE_PRIVATE)
         if (preferences.getBoolean(FIRST_RUN_KEY, true)) {
             preferences.edit().putBoolean(FIRST_RUN_KEY, false).apply()
             airship.pushManager.userNotificationsEnabled = true
@@ -68,11 +72,10 @@ class MParticleAutopilot : Autopilot() {
 
     override fun allowEarlyTakeOff(context: Context): Boolean = false
 
-
     companion object {
         private const val PREFERENCE_NAME = "com.mparticle.kits.urbanairship"
 
-        //persistence keys
+        // persistence keys
         private const val APP_KEY = "applicationKey"
         private const val APP_SECRET = "applicationSecret"
         private const val DOMAIN = "domain"
@@ -89,12 +92,18 @@ class MParticleAutopilot : Autopilot() {
          * @param context       The application context.
          * @param configuration UrbanAirshipKit configuration.
          */
-        fun updateConfig(context: Context, configuration: UrbanAirshipConfiguration) {
-            val editor = context.getSharedPreferences(PREFERENCE_NAME, Context.MODE_PRIVATE).edit()
-                .putString(APP_KEY, configuration.applicationKey)
-                .putString(APP_SECRET, configuration.applicationSecret)
-                .putString(DOMAIN, configuration.domain)
-                .putString(CUSTOM_DOMAIN_PROXY_URL, configuration.customDomainProxyUrl)
+        fun updateConfig(
+            context: Context,
+            configuration: UrbanAirshipConfiguration,
+        ) {
+            val editor =
+                context
+                    .getSharedPreferences(PREFERENCE_NAME, Context.MODE_PRIVATE)
+                    .edit()
+                    .putString(APP_KEY, configuration.applicationKey)
+                    .putString(APP_SECRET, configuration.applicationSecret)
+                    .putString(DOMAIN, configuration.domain)
+                    .putString(CUSTOM_DOMAIN_PROXY_URL, configuration.customDomainProxyUrl)
 
             // Convert accent color hex string to an int
             val accentColor = configuration.notificationColor
@@ -109,9 +118,12 @@ class MParticleAutopilot : Autopilot() {
             // Convert notification name to a drawable resource ID
             val notificationIconName = configuration.notificationIconName
             if (!UAStringUtil.isEmpty(notificationIconName)) {
-                val id = context.resources.getIdentifier(
-                    notificationIconName, "drawable", context.packageName
-                )
+                val id =
+                    context.resources.getIdentifier(
+                        notificationIconName,
+                        "drawable",
+                        context.packageName,
+                    )
                 if (id != 0) {
                     editor.putInt(NOTIFICATION_ICON_NAME, id)
                 } else {

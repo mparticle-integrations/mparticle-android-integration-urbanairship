@@ -1,12 +1,14 @@
 package com.mparticle.kits
 
 import com.mparticle.MParticle.IdentityType
-import java.util.ArrayList
 import org.json.JSONArray
 import org.json.JSONException
 import java.lang.Exception
+import java.util.ArrayList
 
-class UrbanAirshipConfiguration(settings: Map<String, String>) {
+class UrbanAirshipConfiguration(
+    settings: Map<String, String>,
+) {
     val applicationKey: String?
     val applicationSecret: String?
     val domain: String?
@@ -27,7 +29,6 @@ class UrbanAirshipConfiguration(settings: Map<String, String>) {
     var notificationIconName: String? = null
     var notificationColor: String? = null
 
-
     private fun parseTagsJson(tagsJson: JSONArray) {
         for (i in 0 until tagsJson.length()) {
             try {
@@ -37,22 +38,22 @@ class UrbanAirshipConfiguration(settings: Map<String, String>) {
                 val hash = tagMap.getInt("map")
                 val eventMap: MutableMap<Int, ArrayList<String>>? =
                     when (mapType) {
-                    "EventClass.Id" -> {
-                        eventClass
+                        "EventClass.Id" -> {
+                            eventClass
+                        }
+                        "EventClassDetails.Id" -> {
+                            eventClassDetails
+                        }
+                        "EventAttributeClass.Id" -> {
+                            eventAttributeClass
+                        }
+                        "EventAttributeClassDetails.Id" -> {
+                            eventAttributeClassDetails
+                        }
+                        else -> {
+                            null
+                        }
                     }
-                    "EventClassDetails.Id" -> {
-                        eventClassDetails
-                    }
-                    "EventAttributeClass.Id" -> {
-                        eventAttributeClass
-                    }
-                    "EventAttributeClassDetails.Id" -> {
-                        eventAttributeClassDetails
-                    }
-                    else -> {
-                        null
-                    }
-                }
                 if (eventMap != null) {
                     if (!eventMap.containsKey(hash)) {
                         eventMap[hash] = ArrayList()
@@ -80,17 +81,19 @@ class UrbanAirshipConfiguration(settings: Map<String, String>) {
         private const val NAMED_USER_TYPE_CUSTOMER_ID = "customerId"
         private const val NAMED_USER_TYPE_EMAIL = "email"
         private const val NAMED_USER_TYPE_OTHER = "other"
-        private fun parseNamedUserIdentityType(config: String?): IdentityType? {
-            return if (config == null) {
+
+        private fun parseNamedUserIdentityType(config: String?): IdentityType? =
+            if (config == null) {
                 null
-            } else when (config) {
-                NAMED_USER_TYPE_OTHER -> IdentityType.Other
-                NAMED_USER_TYPE_EMAIL -> IdentityType.Email
-                NAMED_USER_TYPE_CUSTOMER_ID -> IdentityType.CustomerId
-                NAMED_USER_TYPE_NONE -> null
-                else -> null
+            } else {
+                when (config) {
+                    NAMED_USER_TYPE_OTHER -> IdentityType.Other
+                    NAMED_USER_TYPE_EMAIL -> IdentityType.Email
+                    NAMED_USER_TYPE_CUSTOMER_ID -> IdentityType.CustomerId
+                    NAMED_USER_TYPE_NONE -> null
+                    else -> null
+                }
             }
-        }
     }
 
     init {
