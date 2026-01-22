@@ -12,7 +12,7 @@ import org.junit.Assert
 import org.junit.Test
 import org.mockito.Mockito
 
-class UrbanAirshipKitTest2 {
+class UrbanAirshipKitTests {
     private val kit: KitIntegration
         get() = UrbanAirshipKit()
 
@@ -62,7 +62,7 @@ class UrbanAirshipKitTest2 {
     fun testParsing() {
         val config =
             JSONObject(
-                "{ \"id\": 25, \"as\": { \"applicationKey\": \"this is the app key\", \"applicationSecret\": \"this is the app secret\", \"applicationMasterSecret\": \"mySecret\", \"domain\": \"EU\", \"enableTags\": \"True\", \"includeUserAttributes\": \"False\", \"notificationIconName\": \"Application Icon\", \"notificationColor\": \"System default\", \"namedUserIdField\": \"customerId\", \"eventUserTags\": \"[{\\\"map\\\":\\\"847138800\\\",\\\"value\\\":\\\"pressed\\\",\\\"maptype\\\":\\\"EventClassDetails.Id\\\"},{\\\"map\\\":\\\"-1394780343\\\",\\\"value\\\":\\\"screen1\\\",\\\"maptype\\\":\\\"EventClass.Id\\\"},{\\\"map\\\":\\\"-2010155734\\\",\\\"value\\\":\\\"cart\\\",\\\"maptype\\\":\\\"EventClassDetails.Id\\\"}]\", \"eventAttributeUserTags\": \"[{\\\"map\\\":\\\"245922523\\\",\\\"value\\\":\\\"gesture\\\",\\\"maptype\\\":\\\"EventAttributeClass.Id\\\"},{\\\"map\\\":\\\"245922523\\\",\\\"value\\\":\\\"a2ctid\\\",\\\"maptype\\\":\\\"EventAttributeClass.Id\\\"},{\\\"map\\\":\\\"1112195452\\\",\\\"value\\\":\\\"hello\\\",\\\"maptype\\\":\\\"EventAttributeClassDetails.Id\\\"},{\\\"map\\\":\\\"-897761755\\\",\\\"value\\\":\\\"a\\\",\\\"maptype\\\":\\\"EventAttributeClassDetails.Id\\\"},{\\\"map\\\":\\\"-635338283\\\",\\\"value\\\":\\\"b\\\",\\\"maptype\\\":\\\"EventAttributeClassDetails.Id\\\"},{\\\"map\\\":\\\"-1165857198\\\",\\\"value\\\":\\\"c\\\",\\\"maptype\\\":\\\"EventAttributeClassDetails.Id\\\"},{\\\"map\\\":\\\"-2093257886\\\",\\\"value\\\":\\\"d\\\",\\\"maptype\\\":\\\"EventAttributeClass.Id\\\"},{\\\"map\\\":\\\"-599719438\\\",\\\"value\\\":\\\"e\\\",\\\"maptype\\\":\\\"EventAttributeClassDetails.Id\\\"}]\" }, \"hs\": {}, \"pr\": [] }",
+                "{ \"id\": 25, \"as\": { \"applicationKey\": \"this is the app key\", \"applicationSecret\": \"this is the app secret\", \"applicationMasterSecret\": \"mySecret\", \"domain\": \"EU\", \"enableTags\": \"True\", \"includeUserAttributes\": \"False\", \"notificationIconName\": \"Application Icon\", \"notificationColor\": \"System default\", \"namedUserIdField\": \"customerId\", \"eventUserTags\": \"[{\\\"map\\\":\\\"847138800\\\",\\\"value\\\":\\\"pressed\\\",\\\"maptype\\\":\\\"EventClassDetails.Id\\\"},{\\\"map\\\":\\\"-1394780343\\\",\\\"value\\\":\\\"screen1\\\",\\\"maptype\\\":\\\"EventClass.Id\\\"},{\\\"map\\\":\\\"-2010155734\\\",\\\"value\\\":\\\"cart\\\",\\\"maptype\\\":\\\"EventClassDetails.Id\\\"}]\", \"eventAttributeUserTags\": \"[{\\\"map\\\":\\\"245922523\\\",\\\"value\\\":\\\"gesture\\\",\\\"maptype\\\":\\\"EventAttributeClass.Id\\\"},{\\\"map\\\":\\\"245922523\\\",\\\"value\\\":\\\"a2ctid\\\",\\\"maptype\\\":\\\"EventAttributeClass.Id\\\"},{\\\"map\\\":\\\"1112195452\\\",\\\"value\\\":\\\"hello\\\",\\\"maptype\\\":\\\"EventAttributeClassDetails.Id\\\"},{\\\"map\\\":\\\"-897761755\\\",\\\"value\\\":\\\"a\\\",\\\"maptype\\\":\\\"EventAttributeClassDetails.Id\\\"},{\\\"map\\\":\\\"-635338283\\\",\\\"value\\\":\\\"b\\\",\\\"maptype\\\":\\\"EventAttributeClassDetails.Id\\\"},{\\\"map\\\":\\\"-1165857198\\\",\\\"value\\\":\\\"c\\\",\\\"maptype\\\":\\\"EventAttributeClass.Id\\\"},{\\\"map\\\":\\\"-2093257886\\\",\\\"value\\\":\\\"d\\\",\\\"maptype\\\":\\\"EventAttributeClass.Id\\\"},{\\\"map\\\":\\\"-599719438\\\",\\\"value\\\":\\\"e\\\",\\\"maptype\\\":\\\"EventAttributeClassDetails.Id\\\"}]\" }, \"hs\": {}, \"pr\": [] }",
             )
         val kitConfig = MockKitConfiguration.createKitConfiguration(config)
         val urbanAirshipConfiguration = UrbanAirshipConfiguration(kitConfig.settings)
@@ -87,6 +87,7 @@ class UrbanAirshipKitTest2 {
                     ?.contains("a2ctid") == true,
         )
         Assert.assertTrue(eventTags[-2093257886]?.get(0) == "d")
+        Assert.assertTrue(eventTags[-1165857198]?.get(0) == "c")
         eventTags = urbanAirshipConfiguration.eventClassDetails
         Assert.assertTrue(eventTags[-2010155734]?.get(0) == "cart")
         Assert.assertTrue(eventTags[847138800]?.get(0) == "pressed")
@@ -94,7 +95,6 @@ class UrbanAirshipKitTest2 {
         Assert.assertTrue(eventTags[1112195452]?.get(0) == "hello")
         Assert.assertTrue(eventTags[-897761755]?.get(0) == "a")
         Assert.assertTrue(eventTags[-635338283]?.get(0) == "b")
-        Assert.assertTrue(eventTags[-1165857198]?.get(0) == "c")
         Assert.assertTrue(eventTags[-599719438]?.get(0) == "e")
     }
 
