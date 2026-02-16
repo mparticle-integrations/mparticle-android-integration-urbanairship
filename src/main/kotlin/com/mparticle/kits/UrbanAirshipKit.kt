@@ -1,7 +1,9 @@
 package com.mparticle.kits
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import com.mparticle.MPEvent
 import com.mparticle.MParticle.IdentityType
 import com.mparticle.commerce.CommerceEvent
@@ -9,10 +11,11 @@ import com.mparticle.commerce.Product
 import com.mparticle.kits.KitIntegration.CommerceListener
 import com.urbanairship.Autopilot
 import com.urbanairship.PrivacyManager
-import com.urbanairship.UAirship
+import com.urbanairship.Airship
 import com.urbanairship.analytics.CustomEvent
+import com.urbanairship.analytics.Event
 import com.urbanairship.analytics.InstallReceiver
-import com.urbanairship.analytics.RetailEventTemplate
+import com.urbanairship.analytics.templates.RetailEventTemplate
 import com.urbanairship.json.JsonValue
 import com.urbanairship.push.PushMessage
 import com.urbanairship.push.PushProviderBridge
@@ -37,7 +40,9 @@ class UrbanAirshipKit :
 
     override fun getName(): String = KIT_NAME
 
-    override fun getInstance(): ChannelIdListener? = channelIdListener
+    override fun getInstance(): ChannelIdListener? {
+        return channelIdListener
+    }
 
     override fun onKitCreate(
         settings: Map<String, String>,
@@ -65,8 +70,8 @@ class UrbanAirshipKit :
     }
 
     override fun setOptOut(optedOut: Boolean): List<ReportingMessage> {
-        UAirship.shared().privacyManager.setEnabledFeatures(
-            if (optedOut) PrivacyManager.Feature.NONE else PrivacyManager.Feature.ALL,
+        Airship.privacyManager.setEnabledFeatures(
+            if (optedOut) PrivacyManager.Feature.NONE else PrivacyManager.Feature.ALL
         )
         val message =
             ReportingMessage(
@@ -79,7 +84,7 @@ class UrbanAirshipKit :
     }
 
     override fun setInstallReferrer(intent: Intent) {
-        InstallReceiver().onReceive(UAirship.getApplicationContext(), intent)
+        InstallReceiver().onReceive(Airship.application.applicationContext , intent)
     }
 
     override fun willHandlePushMessage(intent: Intent?): Boolean {
@@ -96,9 +101,23 @@ class UrbanAirshipKit :
     ) {
         intent?.extras?.let {
             val pushMessage = PushMessage(it)
-            PushProviderBridge
-                .processPush(MParticlePushProvider::class.java, pushMessage)
-                .executeSync(context)
+            try {
+                // Use reflection to call processPush as it's restricted to the same library group
+                val processPushMethod = PushProviderBridge::class.java.getDeclaredMethod(
+                    "processPush",
+                    Class::class.java,
+                    PushMessage::class.java
+                )
+                processPushMethod.isAccessible = true
+                val result = processPushMethod.invoke(null, MParticlePushProvider::class.java, pushMessage)
+                // Call executeSync on the result
+                val executeSyncMethod = result?.javaClass?.getDeclaredMethod("executeSync", Context::class.java)
+                executeSyncMethod?.isAccessible = true
+                executeSyncMethod?.invoke(result, context)
+            } catch (e: Exception) {
+                // Log error if reflection fails
+                Log.e("UrbanAirshipKit", "Failed to process push message", e)
+            }
         } ?: return
     }
 
@@ -107,11 +126,25 @@ class UrbanAirshipKit :
         senderId: String,
     ): Boolean {
         MParticlePushProvider.instance.setRegistrationToken(instanceId)
-        PushProviderBridge.requestRegistrationUpdate(
-            context,
-            MParticlePushProvider.instance::class.java,
-            instanceId,
-        )
+        try {
+            // Use reflection to call requestRegistrationUpdate as it's restricted to the same library group
+            val requestRegistrationUpdateMethod = PushProviderBridge::class.java.getDeclaredMethod(
+                "requestRegistrationUpdate",
+                Context::class.java,
+                Class::class.java,
+                String::class.java
+            )
+            requestRegistrationUpdateMethod.isAccessible = true
+            requestRegistrationUpdateMethod.invoke(
+                null,
+                context,
+                MParticlePushProvider.instance::class.java,
+                instanceId
+            )
+        } catch (e: Exception) {
+            // Log error if reflection fails
+            Log.e("UrbanAirshipKit", "Failed to request registration update", e)
+        }
         return true
     }
 
@@ -131,9 +164,7 @@ class UrbanAirshipKit :
     override fun logEvent(event: MPEvent): List<ReportingMessage> {
         val tagSet = extractTags(event)
         if (tagSet.isNotEmpty()) {
-            UAirship
-                .shared()
-                .channel
+            Airship.channel
                 .editTags()
                 .addTags(tagSet)
                 .apply()
@@ -148,16 +179,13 @@ class UrbanAirshipKit :
     ): List<ReportingMessage> {
         val tagSet = extractScreenTags(screenName, attributes)
         if (tagSet.isNotEmpty()) {
-            UAirship
-                .shared()
-                .channel
+            Airship.channel
                 .editTags()
                 .addTags(tagSet)
                 .apply()
         }
-        UAirship.shared().analytics.trackScreen(screenName)
-        val message =
-            ReportingMessage(
+        Airship.analytics.trackScreen(screenName)
+        val message = ReportingMessage(
                 this,
                 ReportingMessage.MessageType.SCREEN_VIEW,
                 System.currentTimeMillis(),
@@ -177,9 +205,8 @@ class UrbanAirshipKit :
                 .Builder(eventName)
                 .setEventValue(valueIncreased)
                 .build()
-        UAirship.shared().analytics.recordCustomEvent(customEvent)
-        val message =
-            ReportingMessage(
+        Airship.analytics.recordCustomEvent(customEvent)
+        val message = ReportingMessage(
                 this,
                 ReportingMessage.MessageType.EVENT,
                 System.currentTimeMillis(),
@@ -191,9 +218,7 @@ class UrbanAirshipKit :
     override fun logEvent(commerceEvent: CommerceEvent): List<ReportingMessage> {
         val tagSet = extractCommerceTags(commerceEvent)
         if (tagSet.isNotEmpty()) {
-            UAirship
-                .shared()
-                .channel
+            Airship.channel
                 .editTags()
                 .addTags(tagSet)
                 .apply()
@@ -216,30 +241,26 @@ class UrbanAirshipKit :
     ) {
         val airshipId = getAirshipIdentifier(identityType)
         if (airshipId != null) {
-            UAirship
-                .shared()
-                .analytics
+            Airship.analytics
                 .editAssociatedIdentifiers()
                 .addIdentifier(airshipId, identity)
                 .apply()
         }
         if (identityType == configuration?.userIdField) {
-            UAirship.shared().contact.identify(identity) // Previously setting namedUser but now is immutable
+            Airship.contact.identify(identity) // Previously setting namedUser but now is immutable
         }
     }
 
     override fun removeUserIdentity(identityType: IdentityType) {
         val airshipId = getAirshipIdentifier(identityType)
         if (airshipId != null) {
-            UAirship
-                .shared()
-                .analytics
+            Airship.analytics
                 .editAssociatedIdentifiers()
                 .removeIdentifier(airshipId)
                 .apply()
         }
-        if (identityType == configuration?.userIdField && UAirship.shared().contact.namedUserId != null) {
-            UAirship.shared().contact.reset() // Previously setting namedUser to null but now is immutable
+        if (identityType == configuration?.userIdField && Airship.contact.namedUserId != null) {
+            Airship.contact.reset() // Previously setting namedUser to null but now is immutable
         }
     }
 
@@ -249,16 +270,12 @@ class UrbanAirshipKit :
     ) {
         if (configuration?.enableTags == true) {
             if (KitUtils.isEmpty(value)) {
-                UAirship
-                    .shared()
-                    .channel
+                Airship.channel
                     .editTags()
                     .addTag(KitUtils.sanitizeAttributeKey(key))
                     .apply()
             } else if (configuration?.includeUserAttributes == true) {
-                UAirship
-                    .shared()
-                    .channel
+                Airship.channel
                     .editTags()
                     .addTag(KitUtils.sanitizeAttributeKey(key) + "-" + value)
                     .apply()
@@ -280,10 +297,7 @@ class UrbanAirshipKit :
         listAttributes: Map<String, List<String>>,
     ) {
         if (configuration?.enableTags == true) {
-            val editor =
-                UAirship
-                    .shared()
-                    .channel
+            val editor = Airship.channel
                     .editTags()
             for ((key, value) in stringAttributes) {
                 if (KitUtils.isEmpty(value)) {
@@ -297,9 +311,7 @@ class UrbanAirshipKit :
     }
 
     override fun removeUserAttribute(attribute: String) {
-        UAirship
-            .shared()
-            .channel
+        Airship.channel
             .editTags()
             .removeTag(attribute)
             .apply()
@@ -320,43 +332,21 @@ class UrbanAirshipKit :
             return false
         }
         event.products?.let { eventProducts ->
-            when (event.productAction) {
-                Product.PURCHASE -> for (product in eventProducts) {
-                    val template =
-                        RetailEventTemplate
-                            .newPurchasedTemplate()
-                    if (!KitUtils.isEmpty(
-                            event.transactionAttributes?.id,
-                        )
-                    ) {
-                        template.setTransactionId(
-                            event.transactionAttributes?.id,
-                        )
-                    }
-                    populateRetailEventTemplate(template, product)
-                        .createEvent()
-                        .track()
+            for (product in eventProducts) {
+                val templateType =
+                when (event.productAction) {
+                    Product.PURCHASE -> RetailEventTemplate.Type.Purchased
+                    Product.ADD_TO_CART -> RetailEventTemplate.Type.AddedToCart
+                    Product.CLICK -> RetailEventTemplate.Type.Browsed
+                    Product.ADD_TO_WISHLIST -> RetailEventTemplate.Type.Starred
+                    else -> return false
                 }
-                Product.ADD_TO_CART -> for (product in eventProducts) {
-                    populateRetailEventTemplate(
-                        RetailEventTemplate.newAddedToCartTemplate(),
-                        product,
-                    ).createEvent()
-                        .track()
-                }
-                Product.CLICK -> for (product in eventProducts) {
-                    populateRetailEventTemplate(RetailEventTemplate.newBrowsedTemplate(), product)
-                        .createEvent()
-                        .track()
-                }
-                Product.ADD_TO_WISHLIST -> for (product in eventProducts) {
-                    populateRetailEventTemplate(
-                        RetailEventTemplate.newStarredProductTemplate(),
-                        product,
-                    ).createEvent()
-                        .track()
-                }
-                else -> return false
+                val templateProperties = RetailEventTemplate.Properties.newBuilder()
+                CustomEvent.newBuilder(templateType, populateRetailEventTemplate(templateProperties, product))
+                    .setEventValue(product.totalAmount)
+                    .setTransactionId(event.transactionAttributes?.id)
+                    .build()
+                    .track()
             }
         }
         return true
@@ -370,15 +360,15 @@ class UrbanAirshipKit :
      * @return The populated retail event template.
      */
     private fun populateRetailEventTemplate(
-        template: RetailEventTemplate,
-        product: Product,
-    ): RetailEventTemplate =
-        template
-            .setCategory(product.category)
+        template: RetailEventTemplate.Properties.Builder,
+        product: Product
+    ): RetailEventTemplate.Properties {
+        return template.setCategory(product.category)
             .setId(product.sku)
             .setDescription(product.name)
-            .setValue(product.totalAmount)
             .setBrand(product.brand)
+            .build()
+    }
 
     /**
      * Logs an Urban Airship CustomEvent from an MPEvent.
@@ -390,7 +380,7 @@ class UrbanAirshipKit :
         if (event.customAttributeStrings != null) {
             eventBuilder.setProperties(JsonValue.wrapOpt(event.customAttributeStrings).optMap())
         }
-        UAirship.shared().analytics.recordCustomEvent(eventBuilder.build())
+        Airship.analytics.recordCustomEvent(eventBuilder.build())
     }
 
     fun extractTags(event: MPEvent): Set<String> {
@@ -529,7 +519,7 @@ class UrbanAirshipKit :
      * Sets the Urban Airship Channel ID as an mParticle integration attribute.
      */
     private fun updateChannelIntegration() {
-        val channelId = UAirship.shared().channel.id
+        val channelId = Airship.channel.id
         if (!KitUtils.isEmpty(channelId)) {
             val integrationAttributes = HashMap<String, String?>(1)
             integrationAttributes[CHANNEL_ID_INTEGRATION_KEY] = channelId
