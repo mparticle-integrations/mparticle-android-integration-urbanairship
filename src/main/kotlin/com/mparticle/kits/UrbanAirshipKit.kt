@@ -345,7 +345,8 @@ class UrbanAirshipKit :
                 customEvent(
                     templateType,
                     populateRetailEventTemplate(product)
-                ) { setEventValue(product.totalAmount)
+                ) {
+                    setEventValue(product.totalAmount)
                     setTransactionId(event.transactionAttributes?.id)
                 }.track()
             }
