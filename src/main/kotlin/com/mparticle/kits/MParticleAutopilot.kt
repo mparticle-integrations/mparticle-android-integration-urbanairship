@@ -1,9 +1,7 @@
 package com.mparticle.kits
 
-import android.R
 import android.content.Context
 import android.graphics.Color
-import android.util.TypedValue
 import com.mparticle.MParticle
 import com.mparticle.internal.Logger
 import com.mparticle.kits.UrbanAirshipKit.ChannelIdListener
