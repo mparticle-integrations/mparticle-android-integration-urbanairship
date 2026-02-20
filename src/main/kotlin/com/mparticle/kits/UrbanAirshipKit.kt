@@ -15,6 +15,7 @@ import com.urbanairship.Airship
 import com.urbanairship.analytics.CustomEvent
 import com.urbanairship.analytics.Event
 import com.urbanairship.analytics.InstallReceiver
+import com.urbanairship.analytics.customEvent
 import com.urbanairship.analytics.templates.RetailEventTemplate
 import com.urbanairship.json.JsonValue
 import com.urbanairship.push.PushMessage
@@ -341,12 +342,12 @@ class UrbanAirshipKit :
                     Product.ADD_TO_WISHLIST -> RetailEventTemplate.Type.Starred
                     else -> return false
                 }
-                val templateProperties = RetailEventTemplate.Properties.newBuilder()
-                CustomEvent.newBuilder(templateType, populateRetailEventTemplate(templateProperties, product))
-                    .setEventValue(product.totalAmount)
-                    .setTransactionId(event.transactionAttributes?.id)
-                    .build()
-                    .track()
+                customEvent(
+                    templateType,
+                    populateRetailEventTemplate(product)
+                ) { setEventValue(product.totalAmount)
+                    setTransactionId(event.transactionAttributes?.id)
+                }.track()
             }
         }
         return true
@@ -360,15 +361,14 @@ class UrbanAirshipKit :
      * @return The populated retail event template.
      */
     private fun populateRetailEventTemplate(
-        template: RetailEventTemplate.Properties.Builder,
         product: Product
-    ): RetailEventTemplate.Properties {
-        return template.setCategory(product.category)
-            .setId(product.sku)
-            .setDescription(product.name)
-            .setBrand(product.brand)
-            .build()
-    }
+    ): RetailEventTemplate.Properties =
+        RetailEventTemplate.Properties(
+            id = product.sku,
+            category = product.category,
+            eventDescription = product.name,
+            brand = product.brand
+        )
 
     /**
      * Logs an Urban Airship CustomEvent from an MPEvent.
