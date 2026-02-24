@@ -41,9 +41,7 @@ class UrbanAirshipKit :
 
     override fun getName(): String = KIT_NAME
 
-    override fun getInstance(): ChannelIdListener? {
-        return channelIdListener
-    }
+    override fun getInstance(): ChannelIdListener? = channelIdListener
 
     override fun onKitCreate(
         settings: Map<String, String>,
@@ -72,7 +70,7 @@ class UrbanAirshipKit :
 
     override fun setOptOut(optedOut: Boolean): List<ReportingMessage> {
         Airship.privacyManager.setEnabledFeatures(
-            if (optedOut) PrivacyManager.Feature.NONE else PrivacyManager.Feature.ALL
+            if (optedOut) PrivacyManager.Feature.NONE else PrivacyManager.Feature.ALL,
         )
         val message =
             ReportingMessage(
