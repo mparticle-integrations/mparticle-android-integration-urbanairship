@@ -1,19 +1,16 @@
 package com.mparticle.kits
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
-import android.util.Log
 import com.mparticle.MPEvent
 import com.mparticle.MParticle.IdentityType
 import com.mparticle.commerce.CommerceEvent
 import com.mparticle.commerce.Product
 import com.mparticle.kits.KitIntegration.CommerceListener
+import com.urbanairship.Airship
 import com.urbanairship.Autopilot
 import com.urbanairship.PrivacyManager
-import com.urbanairship.Airship
 import com.urbanairship.analytics.CustomEvent
-import com.urbanairship.analytics.Event
 import com.urbanairship.analytics.InstallReceiver
 import com.urbanairship.analytics.customEvent
 import com.urbanairship.analytics.templates.RetailEventTemplate
@@ -83,7 +80,7 @@ class UrbanAirshipKit :
     }
 
     override fun setInstallReferrer(intent: Intent) {
-        InstallReceiver().onReceive(Airship.application.applicationContext , intent)
+        InstallReceiver().onReceive(Airship.application.applicationContext, intent)
     }
 
     override fun willHandlePushMessage(intent: Intent?): Boolean {
@@ -100,23 +97,9 @@ class UrbanAirshipKit :
     ) {
         intent?.extras?.let {
             val pushMessage = PushMessage(it)
-            try {
-                // Use reflection to call processPush as it's restricted to the same library group
-                val processPushMethod = PushProviderBridge::class.java.getDeclaredMethod(
-                    "processPush",
-                    Class::class.java,
-                    PushMessage::class.java
-                )
-                processPushMethod.isAccessible = true
-                val result = processPushMethod.invoke(null, MParticlePushProvider::class.java, pushMessage)
-                // Call executeSync on the result
-                val executeSyncMethod = result?.javaClass?.getDeclaredMethod("executeSync", Context::class.java)
-                executeSyncMethod?.isAccessible = true
-                executeSyncMethod?.invoke(result, context)
-            } catch (e: Exception) {
-                // Log error if reflection fails
-                Log.e("UrbanAirshipKit", "Failed to process push message", e)
-            }
+            PushProviderBridge
+                .processPush(MParticlePushProvider::class.java, pushMessage)
+                .executeSync(context)
         } ?: return
     }
 
@@ -125,25 +108,11 @@ class UrbanAirshipKit :
         senderId: String,
     ): Boolean {
         MParticlePushProvider.instance.setRegistrationToken(instanceId)
-        try {
-            // Use reflection to call requestRegistrationUpdate as it's restricted to the same library group
-            val requestRegistrationUpdateMethod = PushProviderBridge::class.java.getDeclaredMethod(
-                "requestRegistrationUpdate",
-                Context::class.java,
-                Class::class.java,
-                String::class.java
-            )
-            requestRegistrationUpdateMethod.isAccessible = true
-            requestRegistrationUpdateMethod.invoke(
-                null,
-                context,
-                MParticlePushProvider.instance::class.java,
-                instanceId
-            )
-        } catch (e: Exception) {
-            // Log error if reflection fails
-            Log.e("UrbanAirshipKit", "Failed to request registration update", e)
-        }
+        PushProviderBridge.requestRegistrationUpdate(
+            context,
+            MParticlePushProvider.instance::class.java,
+            instanceId,
+        )
         return true
     }
 
@@ -184,7 +153,8 @@ class UrbanAirshipKit :
                 .apply()
         }
         Airship.analytics.trackScreen(screenName)
-        val message = ReportingMessage(
+        val message =
+            ReportingMessage(
                 this,
                 ReportingMessage.MessageType.SCREEN_VIEW,
                 System.currentTimeMillis(),
@@ -205,7 +175,8 @@ class UrbanAirshipKit :
                 .setEventValue(valueIncreased)
                 .build()
         Airship.analytics.recordCustomEvent(customEvent)
-        val message = ReportingMessage(
+        val message =
+            ReportingMessage(
                 this,
                 ReportingMessage.MessageType.EVENT,
                 System.currentTimeMillis(),
@@ -296,7 +267,8 @@ class UrbanAirshipKit :
         listAttributes: Map<String, List<String>>,
     ) {
         if (configuration?.enableTags == true) {
-            val editor = Airship.channel
+            val editor =
+                Airship.channel
                     .editTags()
             for ((key, value) in stringAttributes) {
                 if (KitUtils.isEmpty(value)) {
@@ -333,16 +305,16 @@ class UrbanAirshipKit :
         event.products?.let { eventProducts ->
             for (product in eventProducts) {
                 val templateType =
-                when (event.productAction) {
-                    Product.PURCHASE -> RetailEventTemplate.Type.Purchased
-                    Product.ADD_TO_CART -> RetailEventTemplate.Type.AddedToCart
-                    Product.CLICK -> RetailEventTemplate.Type.Browsed
-                    Product.ADD_TO_WISHLIST -> RetailEventTemplate.Type.Starred
-                    else -> return false
-                }
+                    when (event.productAction) {
+                        Product.PURCHASE -> RetailEventTemplate.Type.Purchased
+                        Product.ADD_TO_CART -> RetailEventTemplate.Type.AddedToCart
+                        Product.CLICK -> RetailEventTemplate.Type.Browsed
+                        Product.ADD_TO_WISHLIST -> RetailEventTemplate.Type.Starred
+                        else -> return false
+                    }
                 customEvent(
                     templateType,
-                    populateRetailEventTemplate(product)
+                    populateRetailEventTemplate(product),
                 ) {
                     setEventValue(product.totalAmount)
                     setTransactionId(event.transactionAttributes?.id)
@@ -359,14 +331,12 @@ class UrbanAirshipKit :
      * @param product The product.
      * @return The populated retail event template.
      */
-    private fun populateRetailEventTemplate(
-        product: Product
-    ): RetailEventTemplate.Properties =
+    private fun populateRetailEventTemplate(product: Product): RetailEventTemplate.Properties =
         RetailEventTemplate.Properties(
             id = product.sku,
             category = product.category,
             eventDescription = product.name,
-            brand = product.brand
+            brand = product.brand,
         )
 
     /**

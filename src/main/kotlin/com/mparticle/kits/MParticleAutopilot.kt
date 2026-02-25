@@ -2,13 +2,13 @@ package com.mparticle.kits
 
 import android.content.Context
 import android.graphics.Color
+import androidx.core.content.edit
 import com.mparticle.MParticle
 import com.mparticle.internal.Logger
 import com.mparticle.kits.UrbanAirshipKit.ChannelIdListener
 import com.urbanairship.Airship
 import com.urbanairship.AirshipConfigOptions
 import com.urbanairship.Autopilot
-import androidx.core.content.edit
 
 /**
  * Autopilot for UrbanAirshipKit integration.
@@ -16,7 +16,9 @@ import androidx.core.content.edit
 class MParticleAutopilot : Autopilot() {
     override fun createAirshipConfigOptions(context: Context): AirshipConfigOptions {
         val preferences = context.getSharedPreferences(PREFERENCE_NAME, Context.MODE_PRIVATE)
-        val optionsBuilder = AirshipConfigOptions.Builder()
+        val optionsBuilder =
+            AirshipConfigOptions
+                .Builder()
                 .setNotificationIcon(preferences.getInt(NOTIFICATION_ICON_NAME, 0))
                 .setNotificationAccentColor(preferences.getInt(NOTIFICATION_COLOR, 0))
                 .setCustomPushProvider(MParticlePushProvider.instance)
@@ -43,7 +45,8 @@ class MParticleAutopilot : Autopilot() {
     }
 
     override fun onAirshipReady(context: Context) {
-        val preferences = Airship.application.applicationContext
+        val preferences =
+            Airship.application.applicationContext
                 .getSharedPreferences(PREFERENCE_NAME, Context.MODE_PRIVATE)
         if (preferences.getBoolean(FIRST_RUN_KEY, true)) {
             preferences.edit().putBoolean(FIRST_RUN_KEY, false).apply()
@@ -96,9 +99,9 @@ class MParticleAutopilot : Autopilot() {
                 .getSharedPreferences(PREFERENCE_NAME, Context.MODE_PRIVATE)
                 .edit {
                     putString(APP_KEY, configuration.applicationKey)
-                    .putString(APP_SECRET, configuration.applicationSecret)
-                    .putString(DOMAIN, configuration.domain)
-                    .putString(CUSTOM_DOMAIN_PROXY_URL, configuration.customDomainProxyUrl)
+                        .putString(APP_SECRET, configuration.applicationSecret)
+                        .putString(DOMAIN, configuration.domain)
+                        .putString(CUSTOM_DOMAIN_PROXY_URL, configuration.customDomainProxyUrl)
 
                     // Convert accent color hex string to an int
                     val accentColor = configuration.notificationColor
@@ -108,7 +111,7 @@ class MParticleAutopilot : Autopilot() {
                         } catch (e: IllegalArgumentException) {
                             Logger.warning(
                                 e,
-                                "Unable to parse notification accent color: $accentColor"
+                                "Unable to parse notification accent color: $accentColor",
                             )
                         }
                     }

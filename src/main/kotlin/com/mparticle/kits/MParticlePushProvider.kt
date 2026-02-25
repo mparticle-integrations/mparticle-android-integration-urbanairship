@@ -1,7 +1,6 @@
 package com.mparticle.kits
 
 import android.content.Context
-import com.urbanairship.Airship
 import com.urbanairship.Platform
 import com.urbanairship.push.PushProvider
 
