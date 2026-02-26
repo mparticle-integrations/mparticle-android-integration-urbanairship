@@ -1,7 +1,7 @@
 package com.mparticle.kits
 
 import android.content.Context
-import com.urbanairship.Platform
+import com.urbanairship.UAirship
 import com.urbanairship.push.PushProvider
 
 /**
@@ -10,9 +10,9 @@ import com.urbanairship.push.PushProvider
 internal class MParticlePushProvider private constructor() : PushProvider {
     private var token: String? = null
 
-    override val platform: Platform = Platform.ANDROID
+    override fun getPlatform(): Int = UAirship.ANDROID_PLATFORM
 
-    override val deliveryType: PushProvider.DeliveryType = PushProvider.DeliveryType.FCM
+    override fun getDeliveryType(): String = PushProvider.FCM_DELIVERY_TYPE
 
     override fun getRegistrationToken(context: Context): String? = token
 
