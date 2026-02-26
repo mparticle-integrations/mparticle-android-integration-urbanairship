@@ -3,6 +3,7 @@ package com.mparticle.kits
 import android.content.Context
 import android.graphics.Color
 import androidx.core.content.edit
+import androidx.core.graphics.toColorInt
 import com.mparticle.MParticle
 import com.mparticle.internal.Logger
 import com.mparticle.kits.UrbanAirshipKit.ChannelIdListener
@@ -49,7 +50,7 @@ class MParticleAutopilot : Autopilot() {
             Airship.application.applicationContext
                 .getSharedPreferences(PREFERENCE_NAME, Context.MODE_PRIVATE)
         if (preferences.getBoolean(FIRST_RUN_KEY, true)) {
-            preferences.edit().putBoolean(FIRST_RUN_KEY, false).apply()
+            preferences.edit { putBoolean(FIRST_RUN_KEY, false) }
             Airship.push.userNotificationsEnabled = true
         }
 
@@ -107,7 +108,7 @@ class MParticleAutopilot : Autopilot() {
                     val accentColor = configuration.notificationColor
                     if (!accentColor.isNullOrEmpty()) {
                         try {
-                            putInt(NOTIFICATION_COLOR, Color.parseColor(accentColor))
+                            putInt(NOTIFICATION_COLOR, accentColor.toColorInt())
                         } catch (e: IllegalArgumentException) {
                             Logger.warning(
                                 e,
