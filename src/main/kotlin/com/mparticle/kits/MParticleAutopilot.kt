@@ -1,7 +1,6 @@
 package com.mparticle.kits
 
 import android.content.Context
-import android.graphics.Color
 import androidx.core.content.edit
 import androidx.core.graphics.toColorInt
 import com.mparticle.MParticle
